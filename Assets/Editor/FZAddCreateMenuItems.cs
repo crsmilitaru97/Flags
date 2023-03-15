@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-//08.12.2022
+//02.11.2022
 
 public class FZAddCreateMenuItems : Editor
 {
@@ -39,7 +39,7 @@ public class FZAddCreateMenuItems : Editor
         GameObject obj = new GameObject();
         obj.name = "Button";
         var fzBtn = obj.AddComponent<FZButton>();
-        var img = obj.AddComponent<FZImage>();
+        var img = obj.AddComponent<Image>();
         fzBtn.buttonImage = img;
 
         GameObject obj2 = new GameObject();

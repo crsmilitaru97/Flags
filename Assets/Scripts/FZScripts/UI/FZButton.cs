@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class FZButton : Button, IPointerClickHandler
 {
     public bool playClickSound = true;
-    public FZText buttonText;
-    public FZImage buttonImage;
+    public Text buttonText;
+    public Image buttonImage;
     public Color selectedColor = Color.white;
     public bool isSelected;
 

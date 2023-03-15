@@ -1,12 +1,12 @@
 using UnityEngine;
 
-//07.12.22
+//08.03.23
 
 public class FZAudio : MonoBehaviour
 {
     public AudioSource musicSource;
     public AudioSource clickSource;
-    public AudioSource soundsSource;
+    public AudioSource soundsSource2D;
 
     public AudioClip textSound;
 
@@ -20,12 +20,13 @@ public class FZAudio : MonoBehaviour
     void Start()
     {
         DontDestroyOnLoad(this);
-        soundsSource.volume = FZSave.Float.Get(FZSave.Constants.Options.Music, 1);
+        if (soundsSource2D != null)
+            soundsSource2D.volume = FZSave.Float.Get(FZSave.Constants.Options.Music, 1);
         musicSource.volume = FZSave.Float.Get(FZSave.Constants.Options.Sound, 1);
     }
 
     public void PlaySound(AudioClip audioClip)
     {
-        soundsSource.PlayOneShot(audioClip);
+        soundsSource2D.PlayOneShot(audioClip);
     }
 }

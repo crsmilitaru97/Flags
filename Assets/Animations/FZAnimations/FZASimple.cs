@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-//09.12.2022
+//08.03.23
 
 public class FZASimple : MonoBehaviour
 {

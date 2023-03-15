@@ -85,7 +85,7 @@ public class FZCanvas : MonoBehaviour
 
         for (int i = 0; i < 10; i++)
         {
-            yield return new WaitForSecondsRealtime(percent);
+            yield return new WaitForSeconds(percent);
             a += colorPercent;
             fadeImage.color = new Color(Color.black.r, Color.black.g, Color.black.b, a);
         }

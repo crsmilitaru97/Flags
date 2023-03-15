@@ -6,6 +6,10 @@ public class FlagsManager : MonoBehaviour
 {
     public static FlagsManager Manager;
 
+    public List<Flag> symbolsFlags = new List<Flag>();
+    public List<Flag> colorFlags = new List<Flag>();
+
+
     #region Basic Events
     void Awake()
     {
@@ -20,6 +24,11 @@ public class FlagsManager : MonoBehaviour
         for (int i = 0; i < Flags.Count; i++)
         {
             Flags[i].ID = i;
+
+            if (Flags[i].grayScaleSprite != null) // Can color
+                colorFlags.Add(Flags[i]);
+            if (Flags[i].noSymbolSprite != null) // Can symbol
+                symbolsFlags.Add(Flags[i]);
         }
     }
     #endregion

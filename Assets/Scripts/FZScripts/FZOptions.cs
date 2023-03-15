@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-//07.12.22
+//08.03.22
 
 public class FZOptions : MonoBehaviour
 {
@@ -120,7 +120,7 @@ public class FZOptions : MonoBehaviour
             return;
 
         FZAudio.Manager.clickSource.volume = volume;
-        FZAudio.Manager.soundsSource.volume = volume;
+        FZAudio.Manager.soundsSource2D.volume = volume;
         FZSave.Float.Set(FZSave.Constants.Options.Sound, soundSlider.value);
     }
 

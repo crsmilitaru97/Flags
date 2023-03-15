@@ -8,7 +8,7 @@ public class Stats : MonoBehaviour
 
     void Start()
     {
-        highscore = FZSave.Int.GetToText("highscore", highscoreText);
+        highscore = FZSave.Int.GetToText(FZSave.Constants.Highscore, highscoreText);
         symbols = FZSave.Int.GetToText("symbols", symbolsText);
         names = FZSave.Int.GetToText("names", namesText);
         colors = FZSave.Int.GetToText("colors", colorsText);

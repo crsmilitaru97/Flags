@@ -17,18 +17,17 @@ public class GameManager : MonoBehaviour
 
     public GameObject up_flagGroup;
     public GameObject up_uncoloredFlagGroup;
+    public Image[] uncoloredParts;
 
     public FZButton[] responseButtons;
     public FZButton[] colorButtons;
     public FZButton[] symbolButtons;
 
     public Button[] hearts;
-    public Text numberText;
     public GameObject gameoverTile;
     public GameObject pauseTile;
     public Text finalScore;
     public GameObject highscoreMessage;
-    public Button arrowLeftSymbol, arrowRightSymbol;
     public GameObject vertical3, horizontal3;
     public ParticleSystem responseParticles;
     //UI
@@ -42,24 +41,33 @@ public class GameManager : MonoBehaviour
     public Color colorFalse;
     public Color colorOthers;
 
-    int corectResponsesNumber;
     int heartsUsed;
-    public static bool showCorrectAnswer;
+    public static bool showCorrectAnswerAfter;
     public static string category = "Flags/world/";
 
     public GameObject down_colorTile, down_responseTile, down_symbolTile;
 
     public static Flag currentFlag;
     public static int currentResponseIndex;
-    List<int> usedIndexes = new List<int>();
+    List<int> UsedFlagsIndexes = new List<int>();
     enum GameTypes { Guess, Color, Symbol };
-
+    public static int selectedSymbolIndex;
+    public static int mustGameType = -1;
+    int completedParts = 0;
 
     #region Basic Events
     private void Start()
     {
+        AdsManager.instance.LoadBannerAd();
+
+        UsedFlagsIndexes.Clear();
+
         heartsUsed = 0;
         Time.timeScale = 1;
+
+        //Set mode
+        //mustGameType = 2;
+        //FlagsManager.Manager.Flags = FlagsManager.Manager.Flags;
 
         LoadNewFlag();
     }
@@ -81,62 +89,105 @@ public class GameManager : MonoBehaviour
         timerResponseRunning = false;
         bool isCorrectAnswer = responseButtons[index].buttonText.text == currentFlag.name;
 
-        HighlightResponse(index, isCorrectAnswer, responseButtons);
+        HighlightResponse(index, isCorrectAnswer, true, true, responseButtons);
 
-        if (isCorrectAnswer)
-        {
-            corectResponsesNumber++;
-            numberText.text = corectResponsesNumber.ToString();
-        }
-        else
-        {
-            DecreaseLifes();
-        }
+        FinalAnswer(isCorrectAnswer);
     }
 
     public void SelectColor(int index)
     {
+        Color selectedColor = colorButtons[index].buttonImage.color;
+
         colorButtons[index].interactable = false;
 
-        StartCoroutine(TimerAfterResponse());
+        bool isCorrectAnswer = false;
+        for (int i = 0; i < currentFlag.colorParts.Length; i++)
+        {
+            if (currentFlag.colorParts[i].color == selectedColor)
+            {
+                isCorrectAnswer = true;
+                uncoloredParts[i].sprite = currentFlag.colorParts[i].part;
+                uncoloredParts[i].gameObject.SetActive(true);
+                completedParts++;
+            }
+        }
+
+
+        if (isCorrectAnswer)
+        {
+            if (completedParts == currentFlag.colorParts.Length)
+            {
+
+                StartCoroutine(TimerAfterResponse());
+                HighlightResponse(index, isCorrectAnswer, true, true, colorButtons);
+                countryFlag.sprite = currentFlag.sprite;
+
+                timeTile.SetActive(false);
+                countryName.text = currentFlag.name;
+
+                FinalAnswer(isCorrectAnswer);
+            }
+            else
+                HighlightResponse(index, isCorrectAnswer, false, false, colorButtons);
+        }
+        else
+        {
+            HighlightResponse(index, false, true, true, colorButtons);
+            FinalAnswer(isCorrectAnswer);
+        }
     }
 
     public void SelectSymbol(int index)
     {
-        bool isTrue = symbolButtons[index].transform.GetChild(1).name == currentFlag.name;
+        bool isCorrectAnswer = symbolButtons[index].buttonImage.sprite == currentFlag.symbol;
 
-        HighlightResponse(index, isTrue, symbolButtons);
+        HighlightResponse(index, isCorrectAnswer, true, true, symbolButtons);
 
-        if (isTrue)
+
+        if (isCorrectAnswer)
         {
-            corectResponsesNumber++;
-            numberText.text = corectResponsesNumber.ToString();
-            countryFlag.sprite = Resources.Load<Sprite>(category + currentFlag.abbrev);
+            countryFlag.sprite = currentFlag.sprite;
+        }
+        FinalAnswer(isCorrectAnswer);
+
+        StartCoroutine(TimerAfterResponse());
+    }
+
+    private void FinalAnswer(bool isCorrectAnswer)
+    {
+        if (isCorrectAnswer)
+        {
+            Values.AddResolvedFlag(1);
         }
         else
         {
             DecreaseLifes();
         }
-
-        StartCoroutine(TimerAfterResponse());
     }
     #endregion
 
     #region Helpers  
-    private void HighlightResponse(int index, bool isTrue, Button[] buttons)
+    private void HighlightResponse(int index, bool isTrue, bool withParticles, bool finalResponse, Button[] buttons)
     {
         Button selectedButton = buttons[index];
 
         //Particles
-        responseParticles.transform.SetParent(selectedButton.transform);
-        responseParticles.transform.localPosition = Vector3.zero;
-        responseParticles.transform.localScale = Vector3.one;
+        if (withParticles)
+        {
+            responseParticles.transform.SetParent(selectedButton.transform);
+            responseParticles.transform.localPosition = Vector3.zero;
+            responseParticles.transform.localScale = Vector3.one;
+        }
         ParticleSystem.MainModule psmain = responseParticles.main;
 
-        foreach (Button button in buttons)
+
+        if (finalResponse)
         {
-            button.GetComponent<Image>().color = colorOthers;
-            button.interactable = false;
+            foreach (Button button in buttons)
+            {
+                button.GetComponent<Image>().color = colorOthers;
+                button.interactable = false;
+            }
         }
 
         if (isTrue)
@@ -150,14 +201,16 @@ public class GameManager : MonoBehaviour
             psmain.startColor = colorFalse;
         }
 
-        if (showCorrectAnswer)
+        if (finalResponse && showCorrectAnswerAfter)
         {
             buttons[currentResponseIndex].GetComponent<Image>().color = colorTrue;
         }
 
-        responseParticles.Play();
+        if (withParticles)
+            responseParticles.Play();
 
-        StartCoroutine(TimerAfterResponse());
+        if (finalResponse)
+            StartCoroutine(TimerAfterResponse());
     }
 
     private void LoadNewFlag()
@@ -168,7 +221,7 @@ public class GameManager : MonoBehaviour
         downTile.ReEnable();
         timeTile.ReEnable();
 
-        currentFlag = FlagsManager.Manager.Flags.RandomUniqueItem(usedIndexes);
+        currentFlag = FlagsManager.Manager.Flags.RandomUniqueItem(UsedFlagsIndexes);
 
         SetGameMode();
         ChangeColors();
@@ -176,12 +229,12 @@ public class GameManager : MonoBehaviour
 
     void SetGameMode()
     {
-        int gameTypeIndex = SelectGameType(currentFlag);
+        int gameTypeIndex = mustGameType == -1 ? SelectGameType(currentFlag) : mustGameType;
 
         switch (gameTypeIndex)
         {
             case (int)GameTypes.Guess: // "whichCountryFlag"
-                ActivateOnly(new GameObject[] { up_flagGroup, down_responseTile }, new GameObject[] { countryName.gameObject, down_colorTile, down_colorTile, down_symbolTile });
+                ActivateOnly(new GameObject[] { up_flagGroup, down_responseTile }, new GameObject[] { up_uncoloredFlagGroup, countryName.gameObject, down_colorTile, down_colorTile, down_symbolTile });
 
                 //Top
                 countryFlag.sprite = currentFlag.sprite;
@@ -194,59 +247,75 @@ public class GameManager : MonoBehaviour
                 foreach (var button in responseButtons)
                 {
                     button.interactable = true;
-                    button.buttonText.SlowlyWriteText(FlagsManager.Manager.Flags.RandomUniqueItem(usedIndexesForResponses).name);
+                    button.buttonText.GetComponent<FZText>().SlowlyWriteText(FlagsManager.Manager.Flags.RandomUniqueItem(usedIndexesForResponses).name);
                 }
-                responseButtons.RandomItem().buttonText.SlowlyWriteText(currentFlag.name);
+                responseButtons.RandomItem().buttonText.GetComponent<FZText>().SlowlyWriteText(currentFlag.name);
 
                 StartCoroutine(TimerResponse());
                 break;
 
             case (int)GameTypes.Color: // "canYouDraw"
-                ActivateOnly(new GameObject[] { down_colorTile, countryName.gameObject, up_uncoloredFlagGroup, down_colorTile }, new GameObject[] { up_flagGroup, timeTile, down_responseTile, down_symbolTile });
+                ActivateOnly(new GameObject[] { down_colorTile, countryName.gameObject, up_flagGroup, up_uncoloredFlagGroup, down_colorTile }, new GameObject[] { timeTile, down_responseTile, down_symbolTile });
                 countryName.text = currentFlag.name;
+                countryFlag.sprite = currentFlag.grayScaleSprite;
 
+                completedParts = 0;
 
+                foreach (var button in colorButtons)
+                {
+                    button.interactable = true;
+                }
 
+                List<Color> colors = new List<Color>();
+                foreach (var cPart in currentFlag.colorParts)
+                    colors.Add(cPart.color);
+                for (int i = 0; i < colorButtons.Length - currentFlag.colorParts.Length; i++)
+                {
+                    var randFlag = FlagsManager.Manager.colorFlags.RandomItem();
+                    colors.Add(randFlag.colorParts[Random.Range(0, randFlag.colorParts.Length)].color);
+                }
+
+                for (int i = 0; i < colorButtons.Length; i++)
+                {
+                    colorButtons[i].buttonImage.color = colors[i];
+                }
+
+                foreach (var image in uncoloredParts)
+                {
+                    image.gameObject.SetActive(false);
+                }
                 break;
 
             case (int)GameTypes.Symbol: // "missingPart"
-                ActivateOnly(new GameObject[] { down_symbolTile, countryName.gameObject, up_flagGroup }, new GameObject[] { timeTile, down_responseTile, down_colorTile });
+                ActivateOnly(new GameObject[] { down_symbolTile, countryName.gameObject, up_flagGroup }, new GameObject[] { up_uncoloredFlagGroup, timeTile, down_responseTile, down_colorTile });
                 countryName.text = currentFlag.name;
-                symbolNumber = 1;
-                countryFlag.sprite = Resources.Load<Sprite>(category + currentFlag.abbrev + "_noSymbol");
-                down_symbolTile.GetComponent<Animator>().SetInteger("symbolNumber", symbolNumber);
-                //foreach (var item in symbolButtons)
-                //{
-                //    int randVal = Random.Range(0, FlagsManager.flagsWithSymbols.Count());
-                //    item.transform.GetChild(1).GetComponent<Image>().sprite =
-                //        Resources.Load<Sprite>(category + FlagsManager.flagsWithSymbols[randVal].abbrev + "_symbol");
-                //    item.transform.GetChild(1).name = FlagsManager.flagsWithSymbols[randVal].abbrev;
-                //}
-                int randVal2 = Random.Range(0, symbolButtons.Length);
-                symbolButtons[randVal2].transform.GetChild(1).GetComponent<Image>().sprite = Resources.Load<Sprite>(category + currentFlag.abbrev + "_symbol");
-                symbolButtons[randVal2].transform.GetChild(1).name = currentFlag.abbrev;
+                countryFlag.sprite = currentFlag.noSymbolSprite;
+
+                selectedSymbolIndex = 1;
+
+                foreach (var button in symbolButtons)
+                {
+                    button.interactable = true;
+                }
+
+                List<Sprite> symbols = new List<Sprite>
+                {
+                    FlagsManager.Manager.colorFlags.RandomItem().symbol,
+                    FlagsManager.Manager.colorFlags.RandomItem().symbol,
+                    FlagsManager.Manager.colorFlags.RandomItem().symbol
+                };
+                symbols[Random.Range(0, 2)] = currentFlag.symbol;
+
+
+
+                for (int i = 0; i < symbolButtons.Length; i++)
+                {
+                    symbolButtons[i].buttonImage.sprite = symbols[i];
+                }
+
                 break;
         }
         titleGameType.text = UITexts.selectedLanguage[gameTypes[gameTypeIndex]];
-    }
-
-
-    public static int symbolNumber;
-    public void ChangeSymbolTileNumber(int step)
-    {
-        symbolNumber += step;
-        down_symbolTile.GetComponent<Animator>().SetInteger("symbolNumber", symbolNumber);
-
-        if (symbolNumber == 0)
-            arrowLeftSymbol.gameObject.SetActive(false);
-        else if (symbolNumber == 2)
-            arrowRightSymbol.gameObject.SetActive(false);
-        else
-        {
-            arrowLeftSymbol.gameObject.SetActive(true);
-            arrowRightSymbol.gameObject.SetActive(true);
-        }
-        StartCoroutine(WaitForAnimation(0.2f));
     }
 
     private void ChangeColors()
@@ -257,14 +326,18 @@ public class GameManager : MonoBehaviour
         {
             shadow.color = currentShadowColor;
         }
+
         foreach (var resBtn in responseButtons)
         {
             resBtn.image.color = currentColor;
         }
-
-        foreach (var button in symbolButtons)
+        foreach (var colorBtn in colorButtons)
         {
-            button.transform.GetComponent<Image>().color = currentColor;
+            colorBtn.image.color = currentColor;
+        }
+        foreach (var symBtn in symbolButtons)
+        {
+            symBtn.image.color = currentColor;
         }
     }
 
@@ -287,7 +360,7 @@ public class GameManager : MonoBehaviour
                 button.interactable = false;
             }
 
-            if (showCorrectAnswer)
+            if (showCorrectAnswerAfter)
                 responseButtons[currentResponseIndex].GetComponent<Image>().color = colorTrue;
 
             DecreaseLifes();
@@ -309,13 +382,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private IEnumerator WaitForAnimation(float time)
-    {
-        yield return new WaitForSeconds(time);
-        symbolButtons[symbolNumber].transform.parent.SetParent(down_symbolTile.transform.parent);
-        symbolButtons[symbolNumber].transform.parent.SetParent(down_symbolTile.transform);
-    }
-
     private void ActivateOnly(GameObject[] activeObjects, GameObject[] notActiveObjects)
     {
         foreach (var activeObject in activeObjects)
@@ -335,16 +401,30 @@ public class GameManager : MonoBehaviour
 
         if (heartsUsed == hearts.Length)
         {
-            if (Stats.highscore < corectResponsesNumber)
+            if (Stats.highscore < Values.resolvedFlags)
             {
-                PlayerPrefs.SetInt("highscore", corectResponsesNumber);
+                FZSave.Int.Set(FZSave.Constants.Highscore, Values.resolvedFlags);
                 highscoreMessage.SetActive(true);
             }
             main.GetComponent<Animator>().SetBool("shown", false);
             gameoverTile.SetActive(true);
-            finalScore.text = corectResponsesNumber.ToString();
+            finalScore.text = Values.resolvedFlags.ToString();
             Time.timeScale = 0;
         }
+    }
+
+    private int SelectGameType(Flag flag)
+    {
+        var availabelGameTypesForFlag = new List<int>();
+
+        if (flag.sprite != null) // Can guess
+            availabelGameTypesForFlag.Add((int)GameTypes.Guess);
+        if (flag.grayScaleSprite != null) // Can color
+            availabelGameTypesForFlag.Add((int)GameTypes.Color);
+        if (flag.noSymbolSprite != null) // Can symbol
+            availabelGameTypesForFlag.Add((int)GameTypes.Symbol);
+
+        return availabelGameTypesForFlag.RandomItem();
     }
     #endregion
 
@@ -363,19 +443,5 @@ public class GameManager : MonoBehaviour
     public void Replay()
     {
         SceneManager.LoadScene(1);
-    }
-
-    private int SelectGameType(Flag flag)
-    {
-        var availabelGameTypesForFlag = new List<int>();
-
-        if (flag.sprite != null) // Can guess
-            availabelGameTypesForFlag.Add((int)GameTypes.Guess);
-        if (flag.grayScaleSprite != null) // Can color
-            availabelGameTypesForFlag.Add((int)GameTypes.Color);
-        if (flag.noSymbolSprite != null) // Can symbol
-            availabelGameTypesForFlag.Add((int)GameTypes.Symbol);
-
-        return availabelGameTypesForFlag.RandomItem();
     }
 }

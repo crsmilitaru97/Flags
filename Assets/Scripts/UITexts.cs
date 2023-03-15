@@ -146,7 +146,7 @@ public class UITexts : MonoBehaviour
     {
         { "whichCountryFlag", "Al carei tari este steagul acesta?" },
         { "canYouDraw", "Poti colora steagul?" },
-        { "missingPart", "Poti colora steagul acestei tari?" },
+        { "missingPart", "Ghiceste simbolul lipsa!" },
 
         { "continue", "Continua" },
         { "replay", "Joaca din nou" },

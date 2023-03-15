@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-//30.10.22
+//15.03.23
 
 public static class FZSave
 {
@@ -19,6 +19,8 @@ public static class FZSave
         public const string Level = "Level";
         public const string IsFirstPlay = "IsFirstPlay";
         public const string Items = "Items";
+        public const string Points = "Points";
+        public const string Highscore = "Highscore";
         public const string HasSave = "HasSave";
     }
 

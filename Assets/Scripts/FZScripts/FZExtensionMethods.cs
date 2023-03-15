@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-//09.12.2020
+//08.12.2020
 
 public static class FZExtensionMethods
 {
@@ -12,11 +12,6 @@ public static class FZExtensionMethods
         return list.Count() > 0 ? list[Random.Range(0, list.Count)] : default;
     }
 
-    public static int RandomItemIndex<T>(this List<T> list)
-    {
-        return list.Count() > 0 ? Random.Range(0, list.Count) : default;
-    }
-
     public static T RandomItem<T>(this T[] list)
     {
         return list.Count() > 0 ? list[Random.Range(0, list.Length)] : default;
@@ -24,15 +19,12 @@ public static class FZExtensionMethods
 
     public static T RandomUniqueItem<T>(this List<T> list, List<int> usedIndexes)
     {
-        var notUsedList = new List<int>();
+        //foreach (int index in usedIndexes)
+        //{
+        //    list.RemoveAt(index);
+        //}
 
-        for (int i = 0; i < list.Count(); i++)
-        {
-            if (!usedIndexes.Contains(i))
-                notUsedList.Add(i);
-        }
-
-        int newIndex = notUsedList.RandomItemIndex();
+        int newIndex = Random.Range(0, list.Count());
         usedIndexes.Add(newIndex);
 
         return list.Count() > 0 ? list[newIndex] : default;
