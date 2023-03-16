@@ -138,8 +138,14 @@ public class UITexts : MonoBehaviour
         { "newHighscore", "New highscore!" },
         { "areYouSure", "Are you sure you want to reset the game?" },
         { "yes", "Yes" },
-        { "no", "No" }
-
+        { "no", "No" },
+        { "learn", "Learn" },
+        { "difficulty", "Difficulty" },
+        { "easy", "Easy" },
+        { "medium", "Medium" },
+        { "hard", "Hard" },
+        { "unlock", "Unlock" },
+        { "tipPoints", "These points are earned when you answer correctly" }
     };
 
     public static Dictionary<string, string> ro = new Dictionary<string, string>()
@@ -165,7 +171,8 @@ public class UITexts : MonoBehaviour
         { "newHighscore", "Un nou scor mare!" },
         { "areYouSure", "Esti sigur ca vrei sa resetezi jocul?" },
         { "yes", "Da" },
-        { "no", "Nu" }
+        { "no", "Nu" },
+        { "learn", "Invata" }
     };
 
     public static Dictionary<string, string> fr = new Dictionary<string, string>()

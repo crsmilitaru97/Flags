@@ -7,6 +7,7 @@ public static class Constants
     {
         public const int Menu = 0;
         public const int Game = 1;
+        public const int Learn = 2;
     }
 
     [Serializable]
@@ -17,6 +18,7 @@ public static class Constants
         public int ID;
         public string name;
         public Sprite sprite;
+        public int level = 1;
 
         [Header("Color")]
         public Sprite grayScaleSprite;

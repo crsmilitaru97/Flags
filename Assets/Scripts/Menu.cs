@@ -1,24 +1,41 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
+    public static bool firstPlay;
+
     public GameObject moreTile;
     public GameObject optionsTile;
     public GameObject statsTile;
+    public GameObject priceGroup;
+
+    public GameObject pointsTip;
+    public GameObject[] locks;
+
+    public Text priceText;
+    public FZButton unlockButton;
 
     public static bool isMoreUP = false;
     public static bool isOptionsShown = false;
 
+    int selectedToBuy;
+    readonly int[] prices = new int[] { 100, 200, 500 };
+
     void Start()
     {
+        firstPlay = FZSave.Bool.Get(FZSave.Constants.IsFirstPlay, true);
+        FZSave.Bool.Set(FZSave.Constants.IsFirstPlay, false);
 
+        pointsTip.SetActive(firstPlay);
+
+        for (int i = 0; i < locks.Length; i++)
+        {
+            locks[i].SetActive(FZSave.Bool.Get("lock" + i.ToString(), true));
+        }
     }
 
-    public void StartGame()
-    {
-        FZCanvas.Instance.FadeLoadSceneAsync(Constants.Scenes.Game);
-    }
-
+    #region Menu Buttons
     public void More()
     {
         isMoreUP = !isMoreUP;
@@ -31,6 +48,23 @@ public class Menu : MonoBehaviour
         moreTile.GetComponent<Animator>().SetBool("isOptionsShown", isOptionsShown);
     }
 
+    public void Learn()
+    {
+        FZCanvas.Instance.FadeLoadSceneAsync(Constants.Scenes.Learn);
+    }
+
+    public void StartGame(int dif)
+    {
+        FZCanvas.Instance.FadeLoadSceneAsync(Constants.Scenes.Game);
+        FZSave.Int.Set("gameDif", dif + 1);
+    }
+
+    public void OpenURL(string url)
+    {
+        Application.OpenURL(url);
+    }
+    #endregion
+
     public void ShowMenuWithAnim(GameObject tile)
     {
         tile.GetComponent<Animator>().SetBool("shown", true);
@@ -38,11 +72,28 @@ public class Menu : MonoBehaviour
 
     public void HideMenuWithAnim(GameObject tile)
     {
-        tile.gameObject.GetComponent<Animator>().SetBool("shown", false);
+        tile.GetComponent<Animator>().SetBool("shown", false);
     }
 
-    public void OpenURL(string url)
+    public void ShowPrice(int index)
     {
-        Application.OpenURL(url);
+        selectedToBuy = index;
+        priceText.text = prices[selectedToBuy].ToString();
+        unlockButton.interactable = Values.points >= prices[selectedToBuy];
+        priceGroup.SetActive(true);
+        priceGroup.GetComponent<Animator>().SetTrigger("Show");
+    }
+
+    public void Unlock()
+    {
+        Values.AddPoints(-prices[selectedToBuy]);
+        locks[selectedToBuy].SetActive(false);
+        FZSave.Bool.Set("lock" + selectedToBuy.ToString(), false);
+        priceGroup.GetComponent<Animator>().SetTrigger("Hide");
+    }
+
+    public void ShowTip(GameObject tip)
+    {
+        tip.SetActive(true);
     }
 }

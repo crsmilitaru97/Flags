@@ -10,7 +10,7 @@ public class AdsManager : MonoBehaviour
 
     public bool isTest;
 
-    public static AdsManager instance;
+    public static AdsManager Instance;
     public static bool shouldShowAd = false;
 
     private InterstitialAd newFlagAd;
@@ -22,7 +22,7 @@ public class AdsManager : MonoBehaviour
     #region Basic Events
     void Awake()
     {
-        instance = this;
+        Instance = this;
 
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
@@ -98,7 +98,7 @@ public class AdsManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Ads: Interstitial ad is not ready yet.");
+            Debug.LogWarning("Ads: Interstitial ad is not ready yet.");
         }
 
         newFlagAd.OnAdFullScreenContentClosed += () =>

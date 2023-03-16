@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
     public GameObject pauseTile;
     public Text finalScore;
     public GameObject highscoreMessage;
-    public GameObject vertical3, horizontal3;
     public ParticleSystem responseParticles;
     //UI
     public Color[] UIColors;
@@ -40,6 +39,7 @@ public class GameManager : MonoBehaviour
     public Color colorTrue;
     public Color colorFalse;
     public Color colorOthers;
+    public static bool timerResponseRunning;
 
     int heartsUsed;
     public static bool showCorrectAnswerAfter;
@@ -55,10 +55,12 @@ public class GameManager : MonoBehaviour
     public static int mustGameType = -1;
     int completedParts = 0;
 
+    public List<Flag> CurrentListOfFlags = new List<Flag>();
+
     #region Basic Events
     private void Start()
     {
-        AdsManager.instance.LoadBannerAd();
+        AdsManager.Instance.LoadBannerAd();
 
         UsedFlagsIndexes.Clear();
 
@@ -66,8 +68,15 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
 
         //Set mode
-        //mustGameType = 2;
-        //FlagsManager.Manager.Flags = FlagsManager.Manager.Flags;
+        int gameType = FZSave.Int.Get("mustGameType", -1);
+        int level = FZSave.Int.Get("gameDif", 1);
+        foreach (var flag in FlagsManager.Manager.Flags)
+        {
+            if (flag.level == level)
+            {
+                CurrentListOfFlags.Add(flag);
+            }
+        }
 
         LoadNewFlag();
     }
@@ -91,6 +100,13 @@ public class GameManager : MonoBehaviour
 
         HighlightResponse(index, isCorrectAnswer, true, true, responseButtons);
 
+        if (isCorrectAnswer)
+        {
+            timeTile.SetActive(false);
+            countryName.text = currentFlag.name;
+
+            Values.AddPoints(10);
+        }
         FinalAnswer(isCorrectAnswer);
     }
 
@@ -109,6 +125,7 @@ public class GameManager : MonoBehaviour
                 uncoloredParts[i].sprite = currentFlag.colorParts[i].part;
                 uncoloredParts[i].gameObject.SetActive(true);
                 completedParts++;
+                Values.AddPoints(5);
             }
         }
 
@@ -121,9 +138,6 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(TimerAfterResponse());
                 HighlightResponse(index, isCorrectAnswer, true, true, colorButtons);
                 countryFlag.sprite = currentFlag.sprite;
-
-                timeTile.SetActive(false);
-                countryName.text = currentFlag.name;
 
                 FinalAnswer(isCorrectAnswer);
             }
@@ -146,6 +160,7 @@ public class GameManager : MonoBehaviour
 
         if (isCorrectAnswer)
         {
+            Values.AddPoints(10);
             countryFlag.sprite = currentFlag.sprite;
         }
         FinalAnswer(isCorrectAnswer);
@@ -215,13 +230,13 @@ public class GameManager : MonoBehaviour
 
     private void LoadNewFlag()
     {
-        AdsManager.instance.LoadAdIfCase();
+        AdsManager.Instance.LoadAdIfCase();
 
         upTile.ReEnable();
         downTile.ReEnable();
         timeTile.ReEnable();
 
-        currentFlag = FlagsManager.Manager.Flags.RandomUniqueItem(UsedFlagsIndexes);
+        currentFlag = CurrentListOfFlags.RandomUniqueItem(UsedFlagsIndexes);
 
         SetGameMode();
         ChangeColors();
@@ -247,7 +262,7 @@ public class GameManager : MonoBehaviour
                 foreach (var button in responseButtons)
                 {
                     button.interactable = true;
-                    button.buttonText.GetComponent<FZText>().SlowlyWriteText(FlagsManager.Manager.Flags.RandomUniqueItem(usedIndexesForResponses).name);
+                    button.buttonText.GetComponent<FZText>().SlowlyWriteText(CurrentListOfFlags.RandomUniqueItem(usedIndexesForResponses).name);
                 }
                 responseButtons.RandomItem().buttonText.GetComponent<FZText>().SlowlyWriteText(currentFlag.name);
 
@@ -341,7 +356,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public static bool timerResponseRunning;
     private IEnumerator TimerResponse()
     {
         timerResponseRunning = true;
@@ -372,7 +386,7 @@ public class GameManager : MonoBehaviour
         if (AdsManager.shouldShowAd)
         {
             yield return new WaitForSeconds(0.5f);
-            AdsManager.instance.ShowAd();
+            AdsManager.Instance.ShowAd();
             LoadNewFlag();
         }
         else
@@ -430,7 +444,8 @@ public class GameManager : MonoBehaviour
 
     public void BackToMenu()
     {
-        SceneManager.LoadScene(0);
+        AdsManager.Instance.DestroyBannerAd();
+        SceneManager.LoadScene(Scenes.Menu);
     }
 
     public void ContinueGame(GameObject tileToHide)
@@ -442,6 +457,6 @@ public class GameManager : MonoBehaviour
 
     public void Replay()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(Scenes.Game);
     }
 }
