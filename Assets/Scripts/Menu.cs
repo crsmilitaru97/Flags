@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,18 +21,30 @@ public class Menu : MonoBehaviour
     public static bool isOptionsShown = false;
 
     int selectedToBuy;
-    readonly int[] prices = new int[] { 100, 200, 500 };
+    readonly int[] prices = new int[] { 100, 350, 900 };
 
     void Start()
     {
         firstPlay = FZSave.Bool.Get(FZSave.Constants.IsFirstPlay, true);
         FZSave.Bool.Set(FZSave.Constants.IsFirstPlay, false);
 
-        pointsTip.SetActive(firstPlay);
+        if (firstPlay)
+        {
+            //ShowTip(pointsTip);
+        }
 
         for (int i = 0; i < locks.Length; i++)
         {
             locks[i].SetActive(FZSave.Bool.Get("lock" + i.ToString(), true));
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (priceGroup.activeSelf && priceGroup.GetComponent<Animator>().GetBool("shown"))
+                priceGroup.GetComponent<Animator>().SetBool("shown", false);
         }
     }
 
@@ -81,7 +94,7 @@ public class Menu : MonoBehaviour
         priceText.text = prices[selectedToBuy].ToString();
         unlockButton.interactable = Values.points >= prices[selectedToBuy];
         priceGroup.SetActive(true);
-        priceGroup.GetComponent<Animator>().SetTrigger("Show");
+        priceGroup.GetComponent<Animator>().SetBool("shown", true);
     }
 
     public void Unlock()
@@ -89,11 +102,19 @@ public class Menu : MonoBehaviour
         Values.AddPoints(-prices[selectedToBuy]);
         locks[selectedToBuy].SetActive(false);
         FZSave.Bool.Set("lock" + selectedToBuy.ToString(), false);
-        priceGroup.GetComponent<Animator>().SetTrigger("Hide");
+        priceGroup.GetComponent<Animator>().SetBool("shown", false);
     }
 
     public void ShowTip(GameObject tip)
     {
         tip.SetActive(true);
+        tip.GetComponent<Animator>().SetBool("shown", true);
+        StartCoroutine(TimerTip(tip));
+    }
+
+    private IEnumerator TimerTip(GameObject tip)
+    {
+        yield return new WaitForSeconds(2);
+        tip.GetComponent<Animator>().SetBool("shown", false);
     }
 }

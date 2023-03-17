@@ -7,13 +7,14 @@ using static Constants;
 
 public class GameManager : MonoBehaviour
 {
-    public Text titleGameType;
-    public Text countryName;
+    public FZText titleGameType;
+    public FZText countryName;
     public Image countryFlag;
     public GameObject upTile;
     public GameObject downTile;
     public GameObject timeTile;
     public GameObject main;
+    public GameObject resolvedFlagsGroup;
 
     public GameObject up_flagGroup;
     public GameObject up_uncoloredFlagGroup;
@@ -29,12 +30,13 @@ public class GameManager : MonoBehaviour
     public Text finalScore;
     public GameObject highscoreMessage;
     public ParticleSystem responseParticles;
+    public FZProgressBar progressBar;
+
     //UI
     public Color[] UIColors;
     public Image[] shadowsList;
-    public Image timeFill;
+
     string[] gameTypes = { "whichCountryFlag", "canYouDraw", "missingPart" };
-    float time = 1;
 
     public Color colorTrue;
     public Color colorFalse;
@@ -49,30 +51,36 @@ public class GameManager : MonoBehaviour
 
     public static Flag currentFlag;
     public static int currentResponseIndex;
-    List<int> UsedFlagsIndexes = new List<int>();
+
+
+    List<Flag> UsedFlags = new List<Flag>();
     enum GameTypes { Guess, Color, Symbol };
     public static int selectedSymbolIndex;
     public static int mustGameType = -1;
     int completedParts = 0;
+    IEnumerator timer;
 
     public List<Flag> CurrentListOfFlags = new List<Flag>();
+
+
+    int gameType;
+    int gameDifficulty;
+
 
     #region Basic Events
     private void Start()
     {
         AdsManager.Instance.LoadBannerAd();
 
-        UsedFlagsIndexes.Clear();
-
         heartsUsed = 0;
         Time.timeScale = 1;
 
         //Set mode
-        int gameType = FZSave.Int.Get("mustGameType", -1);
-        int level = FZSave.Int.Get("gameDif", 1);
-        foreach (var flag in FlagsManager.Manager.Flags)
+        mustGameType = FZSave.Int.Get("mustGameType", -1);
+        gameDifficulty = FZSave.Int.Get("gameDif", 1);
+        foreach (var flag in FlagsManager.Flags)
         {
-            if (flag.level == level)
+            if (flag.difLevel == gameDifficulty)
             {
                 CurrentListOfFlags.Add(flag);
             }
@@ -103,10 +111,12 @@ public class GameManager : MonoBehaviour
         if (isCorrectAnswer)
         {
             timeTile.SetActive(false);
+            countryName.gameObject.SetActive(true);
             countryName.text = currentFlag.name;
 
             Values.AddPoints(10);
         }
+        FZSave.Int.Set("names", ++Stats.names);
         FinalAnswer(isCorrectAnswer);
     }
 
@@ -117,28 +127,28 @@ public class GameManager : MonoBehaviour
         colorButtons[index].interactable = false;
 
         bool isCorrectAnswer = false;
-        for (int i = 0; i < currentFlag.colorParts.Length; i++)
+        for (int i = 0; i < currentFlag.colors.colorParts.Length; i++)
         {
-            if (currentFlag.colorParts[i].color == selectedColor)
+            if (currentFlag.colors.colorParts[i].color == selectedColor)
             {
                 isCorrectAnswer = true;
-                uncoloredParts[i].sprite = currentFlag.colorParts[i].part;
+                uncoloredParts[i].sprite = currentFlag.colors.colorParts[i].part;
                 uncoloredParts[i].gameObject.SetActive(true);
                 completedParts++;
                 Values.AddPoints(5);
             }
         }
 
-
         if (isCorrectAnswer)
         {
-            if (completedParts == currentFlag.colorParts.Length)
+            if (completedParts == currentFlag.colors.colorParts.Length)
             {
 
                 StartCoroutine(TimerAfterResponse());
                 HighlightResponse(index, isCorrectAnswer, true, true, colorButtons);
                 countryFlag.sprite = currentFlag.sprite;
 
+                FZSave.Int.Set("colors", ++Stats.colors);
                 FinalAnswer(isCorrectAnswer);
             }
             else
@@ -153,7 +163,7 @@ public class GameManager : MonoBehaviour
 
     public void SelectSymbol(int index)
     {
-        bool isCorrectAnswer = symbolButtons[index].buttonImage.sprite == currentFlag.symbol;
+        bool isCorrectAnswer = symbolButtons[index].buttonImage.sprite == currentFlag.symbol.symbolSprite;
 
         HighlightResponse(index, isCorrectAnswer, true, true, symbolButtons);
 
@@ -163,6 +173,7 @@ public class GameManager : MonoBehaviour
             Values.AddPoints(10);
             countryFlag.sprite = currentFlag.sprite;
         }
+        FZSave.Int.Set("symbols", ++Stats.symbols);
         FinalAnswer(isCorrectAnswer);
 
         StartCoroutine(TimerAfterResponse());
@@ -170,8 +181,12 @@ public class GameManager : MonoBehaviour
 
     private void FinalAnswer(bool isCorrectAnswer)
     {
+        if (timer != null)
+            StopCoroutine(timer);
+
         if (isCorrectAnswer)
         {
+            StartCoroutine(ResolvedFlagsGroupTimer(2));
             Values.AddResolvedFlag(1);
         }
         else
@@ -182,7 +197,15 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Helpers  
-    private void HighlightResponse(int index, bool isTrue, bool withParticles, bool finalResponse, Button[] buttons)
+    private IEnumerator ResolvedFlagsGroupTimer(float timeToShow)
+    {
+        resolvedFlagsGroup.SetActive(true);
+        resolvedFlagsGroup.GetComponent<Animator>().SetBool("shown", true);
+        yield return new WaitForSeconds(timeToShow);
+        resolvedFlagsGroup.GetComponent<Animator>().SetBool("shown", false);
+    }
+
+    private void HighlightResponse(int index, bool isCorrect, bool withParticles, bool finalResponse, Button[] buttons)
     {
         Button selectedButton = buttons[index];
 
@@ -200,12 +223,15 @@ public class GameManager : MonoBehaviour
         {
             foreach (Button button in buttons)
             {
-                button.GetComponent<Image>().color = colorOthers;
+                if (gameType != 1)
+                {
+                    button.GetComponent<Image>().color = colorOthers;
+                }
                 button.interactable = false;
             }
         }
 
-        if (isTrue)
+        if (isCorrect)
         {
             selectedButton.GetComponent<Image>().color = colorTrue;
             psmain.startColor = colorTrue;
@@ -213,7 +239,6 @@ public class GameManager : MonoBehaviour
         else
         {
             selectedButton.GetComponent<Image>().color = colorFalse;
-            psmain.startColor = colorFalse;
         }
 
         if (finalResponse && showCorrectAnswerAfter)
@@ -221,7 +246,7 @@ public class GameManager : MonoBehaviour
             buttons[currentResponseIndex].GetComponent<Image>().color = colorTrue;
         }
 
-        if (withParticles)
+        if (withParticles && isCorrect)
             responseParticles.Play();
 
         if (finalResponse)
@@ -236,7 +261,7 @@ public class GameManager : MonoBehaviour
         downTile.ReEnable();
         timeTile.ReEnable();
 
-        currentFlag = CurrentListOfFlags.RandomUniqueItem(UsedFlagsIndexes);
+        currentFlag = CurrentListOfFlags.RandomUniqueItem(UsedFlags);
 
         SetGameMode();
         ChangeColors();
@@ -244,9 +269,9 @@ public class GameManager : MonoBehaviour
 
     void SetGameMode()
     {
-        int gameTypeIndex = mustGameType == -1 ? SelectGameType(currentFlag) : mustGameType;
+        gameType = mustGameType == -1 ? SelectGameType(currentFlag) : mustGameType;
 
-        switch (gameTypeIndex)
+        switch (gameType)
         {
             case (int)GameTypes.Guess: // "whichCountryFlag"
                 ActivateOnly(new GameObject[] { up_flagGroup, down_responseTile }, new GameObject[] { up_uncoloredFlagGroup, countryName.gameObject, down_colorTile, down_colorTile, down_symbolTile });
@@ -255,24 +280,25 @@ public class GameManager : MonoBehaviour
                 countryFlag.sprite = currentFlag.sprite;
 
                 //Down
-                var usedIndexesForResponses = new List<int>
+                var usedFlagsForResponses = new List<Flag>
                 {
-                    currentFlag.ID
+                    currentFlag
                 };
                 foreach (var button in responseButtons)
                 {
                     button.interactable = true;
-                    button.buttonText.GetComponent<FZText>().SlowlyWriteText(CurrentListOfFlags.RandomUniqueItem(usedIndexesForResponses).name);
+                    button.buttonText.GetComponent<FZText>().SlowlyWriteText(CurrentListOfFlags.RandomUniqueItem(usedFlagsForResponses).name);
                 }
                 responseButtons.RandomItem().buttonText.GetComponent<FZText>().SlowlyWriteText(currentFlag.name);
 
-                StartCoroutine(TimerResponse());
+                timer = TimerResponse();
+                StartCoroutine(timer);
                 break;
 
             case (int)GameTypes.Color: // "canYouDraw"
                 ActivateOnly(new GameObject[] { down_colorTile, countryName.gameObject, up_flagGroup, up_uncoloredFlagGroup, down_colorTile }, new GameObject[] { timeTile, down_responseTile, down_symbolTile });
                 countryName.text = currentFlag.name;
-                countryFlag.sprite = currentFlag.grayScaleSprite;
+                countryFlag.sprite = currentFlag.colors.grayScaleSprite;
 
                 completedParts = 0;
 
@@ -282,12 +308,14 @@ public class GameManager : MonoBehaviour
                 }
 
                 List<Color> colors = new List<Color>();
-                foreach (var cPart in currentFlag.colorParts)
-                    colors.Add(cPart.color);
-                for (int i = 0; i < colorButtons.Length - currentFlag.colorParts.Length; i++)
+                foreach (var cPart in currentFlag.colors.colorParts)
                 {
-                    var randFlag = FlagsManager.Manager.colorFlags.RandomItem();
-                    colors.Add(randFlag.colorParts[Random.Range(0, randFlag.colorParts.Length)].color);
+                    colors.Add(cPart.color);
+                }
+
+                for (int i = 0; i < colorButtons.Length - currentFlag.colors.colorParts.Length; i++)
+                {
+                    colors.Add(currentFlag.colors.otherColors.RandomItem());
                 }
 
                 for (int i = 0; i < colorButtons.Length; i++)
@@ -304,7 +332,7 @@ public class GameManager : MonoBehaviour
             case (int)GameTypes.Symbol: // "missingPart"
                 ActivateOnly(new GameObject[] { down_symbolTile, countryName.gameObject, up_flagGroup }, new GameObject[] { up_uncoloredFlagGroup, timeTile, down_responseTile, down_colorTile });
                 countryName.text = currentFlag.name;
-                countryFlag.sprite = currentFlag.noSymbolSprite;
+                countryFlag.sprite = currentFlag.symbol.noSymbolSprite;
 
                 selectedSymbolIndex = 1;
 
@@ -315,13 +343,11 @@ public class GameManager : MonoBehaviour
 
                 List<Sprite> symbols = new List<Sprite>
                 {
-                    FlagsManager.Manager.colorFlags.RandomItem().symbol,
-                    FlagsManager.Manager.colorFlags.RandomItem().symbol,
-                    FlagsManager.Manager.colorFlags.RandomItem().symbol
+                    FlagsManager.AllSymbols.RandomItem(),
+                    FlagsManager.AllSymbols.RandomItem(),
+                    FlagsManager.AllSymbols.RandomItem(),
                 };
-                symbols[Random.Range(0, 2)] = currentFlag.symbol;
-
-
+                symbols[Random.Range(0, 2)] = currentFlag.symbol.symbolSprite;
 
                 for (int i = 0; i < symbolButtons.Length; i++)
                 {
@@ -330,25 +356,21 @@ public class GameManager : MonoBehaviour
 
                 break;
         }
-        titleGameType.text = UITexts.selectedLanguage[gameTypes[gameTypeIndex]];
+        titleGameType.SlowlyWriteText(UITexts.selectedLanguage[gameTypes[gameType]]);
     }
 
     private void ChangeColors()
     {
-        Color currentColor = UIColors[Random.Range(0, UIColors.Length)];
-        Color currentShadowColor = new Color(currentColor.r, currentColor.g, currentColor.b, currentColor.a / 2);
-        foreach (var shadow in shadowsList)
-        {
-            shadow.color = currentShadowColor;
-        }
+        Color currentColor = UIColors.RandomItem();
+        //Color currentShadowColor = new Color(currentColor.r, currentColor.g, currentColor.b, currentColor.a / 4);
+        //foreach (var shadow in shadowsList)
+        //{
+        //    shadow.color = currentShadowColor;
+        //}
 
         foreach (var resBtn in responseButtons)
         {
             resBtn.image.color = currentColor;
-        }
-        foreach (var colorBtn in colorButtons)
-        {
-            colorBtn.image.color = currentColor;
         }
         foreach (var symBtn in symbolButtons)
         {
@@ -359,14 +381,16 @@ public class GameManager : MonoBehaviour
     private IEnumerator TimerResponse()
     {
         timerResponseRunning = true;
-        time = 1.1f;
-        while (time > 0 && timerResponseRunning)
+        float time = 5 + (3 - gameDifficulty);
+        float remainedTime = time;
+        while (remainedTime > 0 && timerResponseRunning)
         {
-            yield return new WaitForSeconds(0.03f);
-            time -= 0.004f;
-            timeFill.fillAmount = time;
+            yield return new WaitForSeconds(time / 100);
+            remainedTime -= time / 100;
+            progressBar.SetProgress(time, remainedTime);
         }
-        if (time <= 0)
+
+        if (remainedTime <= 0)
         {
             foreach (Button button in responseButtons)
             {
@@ -378,10 +402,11 @@ public class GameManager : MonoBehaviour
                 responseButtons[currentResponseIndex].GetComponent<Image>().color = colorTrue;
 
             DecreaseLifes();
+            StartCoroutine(TimerAfterResponse(true));
         }
     }
 
-    private IEnumerator TimerAfterResponse()
+    private IEnumerator TimerAfterResponse(bool fast = false)
     {
         if (AdsManager.shouldShowAd)
         {
@@ -391,7 +416,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(fast ? 0.5f : 1.5f);
             LoadNewFlag();
         }
     }
@@ -429,13 +454,13 @@ public class GameManager : MonoBehaviour
 
     private int SelectGameType(Flag flag)
     {
-        var availabelGameTypesForFlag = new List<int>();
-
-        if (flag.sprite != null) // Can guess
-            availabelGameTypesForFlag.Add((int)GameTypes.Guess);
-        if (flag.grayScaleSprite != null) // Can color
+        var availabelGameTypesForFlag = new List<int>
+        {
+            (int)GameTypes.Guess
+        };
+        if (flag.hasColors)
             availabelGameTypesForFlag.Add((int)GameTypes.Color);
-        if (flag.noSymbolSprite != null) // Can symbol
+        if (flag.hasSymbol)
             availabelGameTypesForFlag.Add((int)GameTypes.Symbol);
 
         return availabelGameTypesForFlag.RandomItem();

@@ -14,18 +14,33 @@ public static class Constants
     public class Flag
     {
         public string abbrev;
-        [HideInInspector]
-        public int ID;
         public string name;
         public Sprite sprite;
-        public int level = 1;
+        public int difLevel = 1;
+        public FlagCountry country = new FlagCountry();
 
-        [Header("Color")]
-        public Sprite grayScaleSprite;
-        public FlagPart[] colorParts;
-        [Header("Symbol")]
-        public Sprite noSymbolSprite;
-        public Sprite symbol;
+        public bool hasColors;
+        public FlagColor colors;
+
+        public bool hasSymbol;
+        public FlagSymbol symbol;
+    }
+
+    [Serializable]
+    public class FlagTranslate
+    {
+        public string ID;
+        public string name;
+    }
+
+    public class FlagCountry
+    {
+        public bool isEU;
+        public bool isAfrica;
+        public bool isAsia;
+        public bool isOceania;
+        public bool isNorthAmerica;
+        public bool isSouthAmerica;
     }
 
     [Serializable]
@@ -33,5 +48,26 @@ public static class Constants
     {
         public Sprite part;
         public Color color;
+    }
+
+    [Serializable]
+    public class FlagColor
+    {
+        public string ID;
+        public Sprite grayScaleSprite;
+        public FlagPart[] colorParts;
+        public Color[] otherColors;
+    }
+
+    public class FlagSymbol
+    {
+        public Sprite symbolSprite;
+        public Sprite noSymbolSprite;
+
+        public FlagSymbol(Sprite symbol, Sprite noSymbol)
+        {
+            symbolSprite = symbol;
+            noSymbolSprite = noSymbol;
+        }
     }
 }

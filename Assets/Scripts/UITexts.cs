@@ -24,7 +24,7 @@ public class UITexts : MonoBehaviour
     void Awake()
     {
         string settedLanguage = PlayerPrefs.GetString("language", null);
-        if (!string.IsNullOrEmpty(settedLanguage))
+        if (string.IsNullOrEmpty(settedLanguage))
         {
             if (Application.systemLanguage == SystemLanguage.Romanian)
             {
@@ -121,8 +121,10 @@ public class UITexts : MonoBehaviour
         { "canYouDraw", "Can you color this flag?" },
         { "missingPart", "Choose the missing symbol!" },
 
+        { "gameOver", "Game Over" },
         { "continue", "Continue" },
         { "replay", "Replay" },
+        { "pause", "Pause" },
         { "menu", "Menu" },
         { "play", "Play" },
         { "options", "Options" },
@@ -145,7 +147,14 @@ public class UITexts : MonoBehaviour
         { "medium", "Medium" },
         { "hard", "Hard" },
         { "unlock", "Unlock" },
-        { "tipPoints", "These points are earned when you answer correctly" }
+        { "europe", "Europe" },
+        { "africa", "Africa" },
+        { "asia", "Asia" },
+        { "oceania", "Oceania" },
+        { "northAmerica", "North America" },
+        { "southAmerica", "South America" },
+        { "others", "Others" },
+        { "tipPoints", "Earn points when you answer correctly" }
     };
 
     public static Dictionary<string, string> ro = new Dictionary<string, string>()
@@ -153,9 +162,11 @@ public class UITexts : MonoBehaviour
         { "whichCountryFlag", "Al carei tari este steagul acesta?" },
         { "canYouDraw", "Poti colora steagul?" },
         { "missingPart", "Ghiceste simbolul lipsa!" },
-
+       
+        { "gameOver", "Game Over" },
         { "continue", "Continua" },
         { "replay", "Joaca din nou" },
+        { "pause", "Pauza" },
         { "menu", "Meniu" },
         { "play", "Joaca" },
         { "options", "Optiuni" },
@@ -172,7 +183,20 @@ public class UITexts : MonoBehaviour
         { "areYouSure", "Esti sigur ca vrei sa resetezi jocul?" },
         { "yes", "Da" },
         { "no", "Nu" },
-        { "learn", "Invata" }
+        { "learn", "Invata" },
+        { "difficulty", "Dificultate" },
+        { "easy", "Usor" },
+        { "medium", "Mediu" },
+        { "hard", "Greu" },
+        { "unlock", "Deblocheaza" },
+        { "europe", "Europa" },
+        { "africa", "Africa" },
+        { "asia", "Asia" },
+        { "oceania", "Oceania" },
+        { "northAmerica", "America de Nord" },
+        { "southAmerica", "America de Sud" },
+        { "others", "Altele" },
+        { "tipPoints", "Castigi puncte cand raspunzi corect" }
     };
 
     public static Dictionary<string, string> fr = new Dictionary<string, string>()
@@ -180,7 +204,8 @@ public class UITexts : MonoBehaviour
         { "whichCountryFlag", "Al carei tari este steagul acesta?" },
         { "canYouDraw", "Poti colora steagul?" },
         { "missingPart", "Poti colora steagul acestei tari?" },
-
+         
+        { "gameOver", "Game Over" },
         { "continue", "Continue" },
         { "replay", "Rejouer" },
         { "menu", "Menu" },

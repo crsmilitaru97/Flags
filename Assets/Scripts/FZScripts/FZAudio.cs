@@ -1,6 +1,6 @@
 using UnityEngine;
 
-//08.03.23
+//16.03.23
 
 public class FZAudio : MonoBehaviour
 {
@@ -27,6 +27,9 @@ public class FZAudio : MonoBehaviour
 
     public void PlaySound(AudioClip audioClip)
     {
-        soundsSource2D.PlayOneShot(audioClip);
+        if (audioClip != null)
+        {
+            soundsSource2D.PlayOneShot(audioClip);
+        }
     }
 }
