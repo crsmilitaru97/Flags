@@ -54,7 +54,8 @@ public static class Constants
     public class FlagColor
     {
         public string ID;
-        public Sprite grayScaleSprite;
+        [HideInInspector]
+        public Sprite graySprite;
         public FlagPart[] colorParts;
         public Color[] otherColors;
     }

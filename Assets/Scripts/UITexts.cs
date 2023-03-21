@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,7 +11,6 @@ public class UITexts : MonoBehaviour
     public Button[] langButtons;
 
     public static Dictionary<string, string> selectedLanguage = UITexts.en;
-
 
     [Serializable]
     public class ObjText
@@ -60,7 +59,6 @@ public class UITexts : MonoBehaviour
     }
     #endregion
 
-    #region Helpers
     public void ChangeLanguage(string language)
     {
         if (language.Equals("ro"))
@@ -113,8 +111,8 @@ public class UITexts : MonoBehaviour
 
         FlagsManager.Manager.ChangeFlagsPack();
     }
-    #endregion
 
+    #region Translation text
     public static Dictionary<string, string> en = new Dictionary<string, string>()
     {
         { "whichCountryFlag", "Which country has this flag?" },
@@ -154,7 +152,7 @@ public class UITexts : MonoBehaviour
         { "northAmerica", "North America" },
         { "southAmerica", "South America" },
         { "others", "Others" },
-        { "tipPoints", "Earn points when you answer correctly" }
+        { "tipPoints", "Earn points when you answer correctly"}
     };
 
     public static Dictionary<string, string> ro = new Dictionary<string, string>()
@@ -162,7 +160,7 @@ public class UITexts : MonoBehaviour
         { "whichCountryFlag", "Al carei tari este steagul acesta?" },
         { "canYouDraw", "Poti colora steagul?" },
         { "missingPart", "Ghiceste simbolul lipsa!" },
-       
+
         { "gameOver", "Game Over" },
         { "continue", "Continua" },
         { "replay", "Joaca din nou" },
@@ -196,60 +194,89 @@ public class UITexts : MonoBehaviour
         { "northAmerica", "America de Nord" },
         { "southAmerica", "America de Sud" },
         { "others", "Altele" },
-        { "tipPoints", "Castigi puncte cand raspunzi corect" }
+        { "tipPoints", "Castigi puncte cand raspunzi corect"}
     };
 
     public static Dictionary<string, string> fr = new Dictionary<string, string>()
     {
-        { "whichCountryFlag", "Al carei tari este steagul acesta?" },
-        { "canYouDraw", "Poti colora steagul?" },
-        { "missingPart", "Poti colora steagul acestei tari?" },
-         
-        { "gameOver", "Game Over" },
-        { "continue", "Continue" },
-        { "replay", "Rejouer" },
-        { "menu", "Menu" },
-        { "play", "Jouer" },
-        { "options", "R�glages" },
-        { "stats", "Statistiques" },
-        { "more", "Suite" },
-        { "language", "Langue" },
-        { "gameplay", "Jeu" },
-        { "resetGame", "R�initialiser le jeu" },
-        { "highscore", "Score �lev�" },
-        { "symbols", "Symboles" },
-        { "names", "Des noms" },
-        { "colors", "Couleurs" },
-        { "newHighscore", "Nouveau record!" },
-        { "areYouSure", "Are you sure you want to reset the game?" },
-        { "yes", "Yes" },
-        { "no", "No" }
-
+          { "whichCountryFlag", "Quel pays a ce drapeau?" },
+          { "canYouDraw", "Peux-tu colorier ce drapeau?" },
+          { "missingPart", "Choisissez le symbole manquant!" },
+          { "gameOver", "Jeu terminé" },
+          { "continue", "Continuer" },
+          { "replay", "Rejouer" },
+          { "pause", "Pause" },
+          { "menu", "Menu" },
+          { "play", "Jouer" },
+          { "options", "Choix" },
+          { "stats", "Statistiques" },
+          { "more", "Plus" },
+          { "language", "Langue" },
+          { "gameplay", "Jeu" },
+          { "resetGame", "Réinitialiser les données du jeu" },
+          { "highscore", "Score élevé" },
+          { "symbols", "Symboles" },
+          { "names", "Des noms" },
+          { "colors", "Couleurs" },
+          { "newHighscore", "Nouveau record!" },
+          { "areYouSure", "Voulez-vous vraiment réinitialiser le jeu?" },
+          { "yes", "Oui" },
+          { "no", "Non" },
+          { "learn", "Apprendre" },
+          { "difficulty", "Difficulté" },
+          { "easy", "Facile" },
+          { "medium", "Moyen" },
+          { "hard", "Dur" },
+          { "unlock", "Ouvrir" },
+          { "europe", "L'Europe " },
+          { "africa", "Afrique" },
+          { "asia", "Asie" },
+          { "oceania", "Océanie" },
+          { "northAmerica", "Amérique du Nord" },
+          { "southAmerica", "Amérique du Sud" },
+          { "others", "Autres" },
+          { "tipPoints", "Gagnez des points lorsque vous répondez correctement"}
     };
 
     public static Dictionary<string, string> es = new Dictionary<string, string>()
     {
-        { "whichCountryFlag", "Al carei tari este steagul acesta?" },
-        { "canYouDraw", "Poti colora steagul?" },
-        { "missingPart", "Poti colora steagul acestei tari?" },
-
-        { "continue", "Seguir" },
-        { "replay", "Repetici�n" },
-        { "menu", "Men�" },
-        { "play", "Desempe�ar" },
-        { "options", "Opciones" },
-        { "stats", "Estad�sticas" },
-        { "more", "M�s" },
-        { "language", "Idioma" },
-        { "gameplay", "Como se juega" },
-        { "resetGame", "reiniciar el juego" },
-        { "highscore", "Puntuaci�n m�s alta" },
-        { "symbols", "Simbolos" },
-        { "names", "Nombres" },
-        { "colors", "Colores" },
-        { "newHighscore", "Nuevo record!" },
-        { "areYouSure", "Are you sure you want to reset the game?" },
-        { "yes", "Yes" },
-        { "no", "No" }
+          { "whichCountryFlag", "¿Qué país tiene esta bandera?" },
+          { "canYouDraw", "¿Puedes colorear esta bandera?" },
+          { "missingPart", "¡Elige el símbolo que falta!" },
+          { "gameOver", "Juego terminado" },
+          { "continue", "Continuar" },
+          { "replay", "Repetición" },
+          { "pause", "Pausa" },
+          { "menu", "Menú" },
+          { "play", "Jugar" },
+          { "options", "Opciones" },
+          { "stats", "Estadísticas" },
+          { "more", "Más" },
+          { "language", "Idioma" },
+          { "gameplay", "Juego" },
+          { "resetGame", "Restablecer datos del juego" },
+          { "highscore", "Puntuación más alta" },
+          { "symbols", "Simbolos" },
+          { "names", "Nombres" },
+          { "colors", "Colores" },
+          { "newHighscore", "¡Nuevo record!" },
+          { "areYouSure", "¿Seguro que quieres reiniciar el juego?" },
+          { "yes", "Sí" },
+          { "no", "No" },
+          { "learn", "Aprender" },
+          { "difficulty", "Dificultad" },
+          { "easy", "Fácil" },
+          { "medium", "Medio" },
+          { "hard", "Duro" },
+          { "unlock", "Desbloquear" },
+          { "europe", "Europa" },
+          { "africa", "África" },
+          { "asia", "Asia" },
+          { "oceania", "Oceanía" },
+          { "northAmerica", "América del norte" },
+          { "southAmerica", "Sudamerica" },
+          { "others", "Otros" },
+          { "tipPoints", "Gana puntos cuando respondas correctamente"}
     };
+    #endregion
 }

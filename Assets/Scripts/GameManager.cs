@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -288,6 +289,7 @@ public class GameManager : MonoBehaviour
                 {
                     button.interactable = true;
                     button.buttonText.GetComponent<FZText>().SlowlyWriteText(CurrentListOfFlags.RandomUniqueItem(usedFlagsForResponses).name);
+
                 }
                 responseButtons.RandomItem().buttonText.GetComponent<FZText>().SlowlyWriteText(currentFlag.name);
 
@@ -298,7 +300,7 @@ public class GameManager : MonoBehaviour
             case (int)GameTypes.Color: // "canYouDraw"
                 ActivateOnly(new GameObject[] { down_colorTile, countryName.gameObject, up_flagGroup, up_uncoloredFlagGroup, down_colorTile }, new GameObject[] { timeTile, down_responseTile, down_symbolTile });
                 countryName.text = currentFlag.name;
-                countryFlag.sprite = currentFlag.colors.grayScaleSprite;
+                countryFlag.sprite = currentFlag.colors.graySprite;
 
                 completedParts = 0;
 
@@ -320,6 +322,7 @@ public class GameManager : MonoBehaviour
 
                 for (int i = 0; i < colorButtons.Length; i++)
                 {
+                    colorButtons[i].image.color = Color.white;
                     colorButtons[i].buttonImage.color = colors[i];
                 }
 
@@ -444,6 +447,8 @@ public class GameManager : MonoBehaviour
             {
                 FZSave.Int.Set(FZSave.Constants.Highscore, Values.resolvedFlags);
                 highscoreMessage.SetActive(true);
+
+                GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.highscore, "CgkI26Tu-vkJEAIQAQ");
             }
             main.GetComponent<Animator>().SetBool("shown", false);
             gameoverTile.SetActive(true);
@@ -470,7 +475,7 @@ public class GameManager : MonoBehaviour
     public void BackToMenu()
     {
         AdsManager.Instance.DestroyBannerAd();
-        SceneManager.LoadScene(Scenes.Menu);
+        FZCanvas.Instance.FadeLoadScene(Scenes.Menu, Color.white);
     }
 
     public void ContinueGame(GameObject tileToHide)
@@ -482,6 +487,6 @@ public class GameManager : MonoBehaviour
 
     public void Replay()
     {
-        SceneManager.LoadScene(Scenes.Game);
+        FZCanvas.Instance.FadeLoadScene(Scenes.Game, Color.white);
     }
 }

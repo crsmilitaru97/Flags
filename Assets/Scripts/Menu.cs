@@ -63,12 +63,12 @@ public class Menu : MonoBehaviour
 
     public void Learn()
     {
-        FZCanvas.Instance.FadeLoadSceneAsync(Constants.Scenes.Learn);
+        FZCanvas.Instance.FadeLoadScene(Constants.Scenes.Learn, Color.white);
     }
 
     public void StartGame(int dif)
     {
-        FZCanvas.Instance.FadeLoadSceneAsync(Constants.Scenes.Game);
+        FZCanvas.Instance.FadeLoadScene(Constants.Scenes.Game, Color.white);
         FZSave.Int.Set("gameDif", dif + 1);
     }
 

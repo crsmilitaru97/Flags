@@ -51,7 +51,7 @@ public class Learn : MonoBehaviour
 
     public void BackToMenu()
     {
-        FZCanvas.Instance.FadeLoadSceneAsync(Constants.Scenes.Menu);
+        FZCanvas.Instance.FadeLoadScene(Constants.Scenes.Menu, Color.white);
     }
 
     public void ChangeTab(int index)
