@@ -8,7 +8,7 @@ public class UITexts : MonoBehaviour
 {
     public ObjText[] textsToChange;
 
-    public Button[] langButtons;
+    public FZButton[] langButtons;
 
     public static Dictionary<string, string> selectedLanguage = UITexts.en;
 
@@ -152,7 +152,8 @@ public class UITexts : MonoBehaviour
         { "northAmerica", "North America" },
         { "southAmerica", "South America" },
         { "others", "Others" },
-        { "tipPoints", "Earn points when you answer correctly"}
+        { "tipPoints", "Earn points when you answer correctly"},
+        { "leaderboards", "Leaderboards" }
     };
 
     public static Dictionary<string, string> ro = new Dictionary<string, string>()
@@ -194,7 +195,8 @@ public class UITexts : MonoBehaviour
         { "northAmerica", "America de Nord" },
         { "southAmerica", "America de Sud" },
         { "others", "Altele" },
-        { "tipPoints", "Castigi puncte cand raspunzi corect"}
+        { "tipPoints", "Castigi puncte cand raspunzi corect"},
+        { "leaderboards", "Clasament" }
     };
 
     public static Dictionary<string, string> fr = new Dictionary<string, string>()
@@ -235,7 +237,8 @@ public class UITexts : MonoBehaviour
           { "northAmerica", "Amérique du Nord" },
           { "southAmerica", "Amérique du Sud" },
           { "others", "Autres" },
-          { "tipPoints", "Gagnez des points lorsque vous répondez correctement"}
+          { "tipPoints", "Gagnez des points lorsque vous répondez correctement"},
+          { "leaderboards", "Classement" }
     };
 
     public static Dictionary<string, string> es = new Dictionary<string, string>()
@@ -276,7 +279,8 @@ public class UITexts : MonoBehaviour
           { "northAmerica", "América del norte" },
           { "southAmerica", "Sudamerica" },
           { "others", "Otros" },
-          { "tipPoints", "Gana puntos cuando respondas correctamente"}
+          { "tipPoints", "Gana puntos cuando respondas correctamente"},
+          { "leaderboards", "Tabla de clasificación" }
     };
     #endregion
 }

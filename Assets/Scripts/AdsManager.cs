@@ -6,6 +6,8 @@ public class AdsManager : MonoBehaviour
 {
     string banner_ID = "ca-app-pub-8089995158636506/1190694487";
     string newFlag_interstitial_ID = "ca-app-pub-8089995158636506/9674189433";
+    string getPoints_reward_ID = "ca-app-pub-8089995158636506/5520653863";
+
     //App ID ca-app-pub-8089995158636506~6664866802
 
     public bool isTest;
@@ -15,6 +17,7 @@ public class AdsManager : MonoBehaviour
 
     private InterstitialAd newFlagAd;
     private BannerView bannerView;
+    private RewardedAd getPoints;
 
     int steps;
     readonly int stepToShow = 4;
@@ -37,6 +40,8 @@ public class AdsManager : MonoBehaviour
             newFlag_interstitial_ID = "ca-app-pub-3940256099942544/1033173712";
             banner_ID = "ca-app-pub-3940256099942544/6300978111";
         }
+
+        LoadRewardedAd();
 
         DontDestroyOnLoad(gameObject);
     }
@@ -156,6 +161,73 @@ public class AdsManager : MonoBehaviour
             bannerView.Destroy();
             bannerView = null;
         }
+    }
+    #endregion
+
+    #region Reward
+    public void LoadRewardedAd()
+    {
+        if (getPoints != null)
+        {
+            getPoints.Destroy();
+            getPoints = null;
+        }
+
+        Debug.Log("Ads: Loading the rewarded ad.");
+
+        var adRequest = new AdRequest.Builder().Build();
+
+        RewardedAd.Load(getPoints_reward_ID, adRequest,
+            (RewardedAd ad, LoadAdError error) =>
+            {
+                if (error != null || ad == null)
+                {
+                    Debug.LogWarning("Ads: Rewarded ad failed to load an ad " + "with error : " + error);
+                    return;
+                }
+
+                Debug.Log("Ads: Rewarded ad loaded with response : " + ad.GetResponseInfo());
+
+                getPoints = ad;
+            });
+
+        RegisterReloadHandler(getPoints);
+    }
+
+    public void ShowRewardedAd()
+    {
+        const string rewardMsg = "Ads: Rewarded ad rewarded the user. Type: {0}, amount: {1}.";
+
+        if (getPoints != null && getPoints.CanShowAd())
+        {
+            getPoints.Show((Reward reward) =>
+            {
+                Debug.Log(string.Format(rewardMsg, reward.Type, reward.Amount));
+                GetPointsReward();
+            });
+        }
+    }
+
+    private void RegisterReloadHandler(RewardedAd ad)
+    {
+        ad.OnAdFullScreenContentClosed += () =>
+        {
+            Debug.Log("Ads: Rewarded Ad full screen content closed.");
+
+            LoadRewardedAd();
+        };
+
+        ad.OnAdFullScreenContentFailed += (AdError error) =>
+        {
+            Debug.LogWarning("Ads: Rewarded ad failed to open full screen content " + "with error : " + error);
+
+            LoadRewardedAd();
+        };
+    }
+
+    void GetPointsReward()
+    {
+        Values.AddPoints(30);
     }
     #endregion
 }

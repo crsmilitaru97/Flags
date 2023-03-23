@@ -21,7 +21,7 @@ public class Menu : MonoBehaviour
     public static bool isOptionsShown = false;
 
     int selectedToBuy;
-    readonly int[] prices = new int[] { 100, 350, 900 };
+    readonly int[] prices = new int[] { 150, 350, 900 };
 
     void Start()
     {
@@ -30,7 +30,7 @@ public class Menu : MonoBehaviour
 
         if (firstPlay)
         {
-            //ShowTip(pointsTip);
+            ShowTip(pointsTip);
         }
 
         for (int i = 0; i < locks.Length; i++)
@@ -45,6 +45,12 @@ public class Menu : MonoBehaviour
         {
             if (priceGroup.activeSelf && priceGroup.GetComponent<Animator>().GetBool("shown"))
                 priceGroup.GetComponent<Animator>().SetBool("shown", false);
+
+            if (moreTile.activeSelf && moreTile.GetComponent<Animator>().GetBool("shown"))
+            {
+                isMoreUP = false;
+                moreTile.GetComponent<Animator>().SetBool("shown", false);
+            }
         }
     }
 
@@ -52,7 +58,7 @@ public class Menu : MonoBehaviour
     public void More()
     {
         isMoreUP = !isMoreUP;
-        moreTile.GetComponent<Animator>().SetBool("isMoreUP", isMoreUP);
+        moreTile.GetComponent<Animator>().SetBool("shown", isMoreUP);
     }
 
     public void Options()

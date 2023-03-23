@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-//08.12.2022
+//23.03.2023
 
 public class FZButton : Button, IPointerClickHandler
 {
@@ -33,12 +33,15 @@ public class FZButton : Button, IPointerClickHandler
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        base.OnPointerClick(eventData);
-
-        if (playClickSound && interactable)
+        if (FZAudio.Manager.clickSource != null)
         {
-            FZAudio.Manager.clickSource?.Play();
+            if (playClickSound && interactable)
+            {
+                FZAudio.Manager.clickSource.Play();
+            }
         }
+
+        base.OnPointerClick(eventData);
     }
 
     public void SelectButton()

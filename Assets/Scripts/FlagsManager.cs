@@ -41,7 +41,7 @@ public class FlagsManager : MonoBehaviour
             {
                 flag.hasSymbol = true;
                 flag.symbol = new FlagSymbol(symbolSprite, noSymbolSprite);
-                AllSymbols.Add(flag.sprite);
+                AllSymbols.Add(symbolSprite);
             }
 
             flag.country.isEU = euCountriesIDs.Contains(flag.abbrev);
@@ -64,7 +64,7 @@ public class FlagsManager : MonoBehaviour
             }
         }
 
-        Debug.Log(Flags.Count + " flags - " + FlagColors.Count + " colors - " + AllSymbols.Count + " symbols");
+        Debug.Log("Initialised: " + Flags.Count + " flags - " + FlagColors.Count + " colors - " + AllSymbols.Count + " symbols");
     }
     #endregion
 
@@ -76,16 +76,16 @@ public class FlagsManager : MonoBehaviour
             {
                 flag.name = world_EN.FirstOrDefault(e => e.ID == flag.abbrev).name;
             }
+            return;
         }
 
         if (UITexts.selectedLanguage == UITexts.ro)
         {
             foreach (var flag in Flags)
             {
-                string name = world_RO.First(e => e.ID == flag.abbrev).name;
-                if (!string.IsNullOrEmpty(name))
-                    flag.name = name;
+                flag.name = world_RO.FirstOrDefault(e => e.ID == flag.abbrev).name;
             }
+            return;
         }
 
         if (UITexts.selectedLanguage == UITexts.fr)
@@ -94,6 +94,7 @@ public class FlagsManager : MonoBehaviour
             {
                 flag.name = world_FR.FirstOrDefault(e => e.ID == flag.abbrev).name;
             }
+            return;
         }
 
         if (UITexts.selectedLanguage == UITexts.es)
@@ -102,6 +103,7 @@ public class FlagsManager : MonoBehaviour
             {
                 flag.name = world_ES.FirstOrDefault(e => e.ID == flag.abbrev).name;
             }
+            return;
         }
     }
 
@@ -285,7 +287,7 @@ public class FlagsManager : MonoBehaviour
          new Flag { abbrev = "PH", difLevel = 1},
          new Flag { abbrev = "PK", difLevel = 1},
          new Flag { abbrev = "PL", difLevel = 1},
-         new Flag { abbrev = "PM", difLevel = 3},
+         //new Flag { abbrev = "PM", difLevel = 3},
          new Flag { abbrev = "PN", difLevel = 3},
          new Flag { abbrev = "PR", difLevel = 1},
          new Flag { abbrev = "PS", difLevel = 3},

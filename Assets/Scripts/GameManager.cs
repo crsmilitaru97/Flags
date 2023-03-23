@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditorInternal;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static Constants;
 
@@ -16,6 +15,7 @@ public class GameManager : MonoBehaviour
     public GameObject timeTile;
     public GameObject main;
     public GameObject resolvedFlagsGroup;
+    public FZButton buttonSplit;
 
     public GameObject up_flagGroup;
     public GameObject up_uncoloredFlagGroup;
@@ -63,12 +63,17 @@ public class GameManager : MonoBehaviour
 
     public List<Flag> CurrentListOfFlags = new List<Flag>();
 
-
     int gameType;
-    int gameDifficulty;
+    public int gameDifficulty;
 
+    public static GameManager Manager;
 
     #region Basic Events
+    private void Awake()
+    {
+        Manager = this;
+    }
+
     private void Start()
     {
         AdsManager.Instance.LoadBannerAd();
@@ -97,6 +102,7 @@ public class GameManager : MonoBehaviour
             main.GetComponent<Animator>().SetBool("shown", false);
             Time.timeScale = 0;
             pauseTile.SetActive(true);
+            buttonSplit.transform.parent.gameObject.SetActive(false);
         }
     }
     #endregion
@@ -115,7 +121,7 @@ public class GameManager : MonoBehaviour
             countryName.gameObject.SetActive(true);
             countryName.text = currentFlag.name;
 
-            Values.AddPoints(10);
+            Values.AddPoints(gameDifficulty == 1 ? 10 : gameDifficulty == 2 ? 15 : 20);
         }
         FZSave.Int.Set("names", ++Stats.names);
         FinalAnswer(isCorrectAnswer);
@@ -136,7 +142,7 @@ public class GameManager : MonoBehaviour
                 uncoloredParts[i].sprite = currentFlag.colors.colorParts[i].part;
                 uncoloredParts[i].gameObject.SetActive(true);
                 completedParts++;
-                Values.AddPoints(5);
+                Values.AddPoints(gameDifficulty == 1 ? 5 : gameDifficulty == 2 ? 10 : 15);
             }
         }
 
@@ -144,7 +150,6 @@ public class GameManager : MonoBehaviour
         {
             if (completedParts == currentFlag.colors.colorParts.Length)
             {
-
                 StartCoroutine(TimerAfterResponse());
                 HighlightResponse(index, isCorrectAnswer, true, true, colorButtons);
                 countryFlag.sprite = currentFlag.sprite;
@@ -153,7 +158,7 @@ public class GameManager : MonoBehaviour
                 FinalAnswer(isCorrectAnswer);
             }
             else
-                HighlightResponse(index, isCorrectAnswer, false, false, colorButtons);
+                HighlightResponse(index, isCorrectAnswer, true, false, colorButtons);
         }
         else
         {
@@ -171,7 +176,7 @@ public class GameManager : MonoBehaviour
 
         if (isCorrectAnswer)
         {
-            Values.AddPoints(10);
+            Values.AddPoints(gameDifficulty == 1 ? 10 : gameDifficulty == 2 ? 15 : 20);
             countryFlag.sprite = currentFlag.sprite;
         }
         FZSave.Int.Set("symbols", ++Stats.symbols);
@@ -192,18 +197,51 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            DecreaseLifes();
+            DecreaseOneLife();
         }
     }
     #endregion
 
     #region Helpers  
-    private IEnumerator ResolvedFlagsGroupTimer(float timeToShow)
+    private void SplitFlags()
     {
-        resolvedFlagsGroup.SetActive(true);
-        resolvedFlagsGroup.GetComponent<Animator>().SetBool("shown", true);
-        yield return new WaitForSeconds(timeToShow);
-        resolvedFlagsGroup.GetComponent<Animator>().SetBool("shown", false);
+        List<FZButton> wrongButtons = new List<FZButton>();
+        int count = 0;
+        switch (gameType)
+        {
+            case (int)GameTypes.Guess:
+                foreach (var item in responseButtons)
+                {
+                    if (item.buttonText.text != currentFlag.name)
+                        wrongButtons.Add(item);
+                }
+                count = responseButtons.Count();
+                break;
+            case (int)GameTypes.Color:
+                foreach (var item in colorButtons)
+                {
+                    if (currentFlag.colors.colorParts.FirstOrDefault(e => e.color == item.buttonImage.color) == null)
+                        wrongButtons.Add(item);
+                }
+                count = colorButtons.Count();
+                break;
+            case (int)GameTypes.Symbol:
+                foreach (var item in symbolButtons)
+                {
+                    if (item.buttonImage.sprite != currentFlag.symbol.symbolSprite)
+                        wrongButtons.Add(item);
+                }
+                count = symbolButtons.Count();
+                break;
+        }
+
+        for (int i = 0; i < count / 2; i++)
+        {
+            var btn = wrongButtons.RandomItem();
+            wrongButtons.Remove(btn);
+            btn.interactable = false;
+            btn.image.color = colorOthers;
+        }
     }
 
     private void HighlightResponse(int index, bool isCorrect, bool withParticles, bool finalResponse, Button[] buttons)
@@ -222,11 +260,29 @@ public class GameManager : MonoBehaviour
 
         if (finalResponse)
         {
+            buttonSplit.interactable = false;
+
             foreach (Button button in buttons)
             {
                 if (gameType != 1)
                 {
                     button.GetComponent<Image>().color = colorOthers;
+                }
+                else
+                {
+                    foreach (var item in colorButtons)
+                    {
+                        if (currentFlag.colors.colorParts.FirstOrDefault(e => e.color == item.buttonImage.color) == null)
+                        {
+                            item.image.color = colorOthers;
+                        }
+                        else
+                        {
+                            if (item.interactable)
+                                item.image.color = colorOthers;
+                        }
+
+                    }
                 }
                 button.interactable = false;
             }
@@ -236,10 +292,13 @@ public class GameManager : MonoBehaviour
         {
             selectedButton.GetComponent<Image>().color = colorTrue;
             psmain.startColor = colorTrue;
+
+            FZAudio.Manager.PlaySound(Sounds.Instance.correct);
         }
         else
         {
             selectedButton.GetComponent<Image>().color = colorFalse;
+            FZAudio.Manager.PlaySound(Sounds.Instance.wrong);
         }
 
         if (finalResponse && showCorrectAnswerAfter)
@@ -266,9 +325,12 @@ public class GameManager : MonoBehaviour
 
         SetGameMode();
         ChangeColors();
+
+        buttonSplit.interactable = Values.points >= (gameDifficulty == 1 ? 25 : gameDifficulty == 2 ? 35 : 50);
+        buttonSplit.buttonText.text = gameDifficulty == 1 ? "-25" : gameDifficulty == 2 ? "-35" : "-50";
     }
 
-    void SetGameMode()
+    private void SetGameMode()
     {
         gameType = mustGameType == -1 ? SelectGameType(currentFlag) : mustGameType;
 
@@ -304,25 +366,26 @@ public class GameManager : MonoBehaviour
 
                 completedParts = 0;
 
-                foreach (var button in colorButtons)
-                {
-                    button.interactable = true;
-                }
-
+                //Get colors
                 List<Color> colors = new List<Color>();
                 foreach (var cPart in currentFlag.colors.colorParts)
                 {
                     colors.Add(cPart.color);
                 }
 
+                currentFlag.colors.otherColors.Shuffle();
                 for (int i = 0; i < colorButtons.Length - currentFlag.colors.colorParts.Length; i++)
                 {
-                    colors.Add(currentFlag.colors.otherColors.RandomItem());
+                    colors.Add(currentFlag.colors.otherColors[i]);
                 }
 
+                colors.Shuffle();
+
+                //Apply colors
                 for (int i = 0; i < colorButtons.Length; i++)
                 {
                     colorButtons[i].image.color = Color.white;
+                    colorButtons[i].interactable = true;
                     colorButtons[i].buttonImage.color = colors[i];
                 }
 
@@ -381,6 +444,86 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void ActivateOnly(GameObject[] activeObjects, GameObject[] notActiveObjects)
+    {
+        foreach (var activeObject in activeObjects)
+        {
+            activeObject.SetActive(true);
+        }
+        foreach (var notActiveObject in notActiveObjects)
+        {
+            notActiveObject.SetActive(false);
+        }
+    }
+
+    private void DecreaseOneLife()
+    {
+        hearts[hearts.Length - heartsUsed - 1].interactable = false;
+        heartsUsed++;
+
+        if (heartsUsed == hearts.Length)
+        {
+            switch (gameDifficulty)
+            {
+                case 1:
+                    if (Stats.easyHighscore < Values.resolvedFlags)
+                    {
+                        Stats.easyHighscore = Values.resolvedFlags;
+                        FZSave.Int.Set("easyHighscore", Stats.easyHighscore);
+                        highscoreMessage.SetActive(true);
+                        GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.easyHighscore, gameDifficulty);
+                    }
+                    break;
+                case 2:
+                    if (Stats.mediumHighscore < Values.resolvedFlags)
+                    {
+                        Stats.mediumHighscore = Values.resolvedFlags;
+                        FZSave.Int.Set("mediumHighscore", Stats.mediumHighscore);
+                        highscoreMessage.SetActive(true);
+                        GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.mediumHighscore, gameDifficulty);
+                    }
+                    break;
+                case 3:
+                    if (Stats.hardHighscore < Values.resolvedFlags)
+                    {
+                        Stats.hardHighscore = Values.resolvedFlags;
+                        FZSave.Int.Set("hardHighscore", Stats.hardHighscore);
+                        highscoreMessage.SetActive(true);
+                        GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.hardHighscore, gameDifficulty);
+                    }
+                    break;
+            }
+
+            main.GetComponent<Animator>().SetBool("shown", false);
+            gameoverTile.SetActive(true);
+            buttonSplit.transform.parent.gameObject.SetActive(false);
+            finalScore.text = Values.resolvedFlags.ToString();
+            Time.timeScale = 0;
+        }
+    }
+
+    private int SelectGameType(Flag flag)
+    {
+        var availabelGameTypesForFlag = new List<int>
+        {
+            (int)GameTypes.Guess
+        };
+        if (flag.hasColors)
+            availabelGameTypesForFlag.Add((int)GameTypes.Color);
+        if (flag.hasSymbol)
+            availabelGameTypesForFlag.Add((int)GameTypes.Symbol);
+
+        return availabelGameTypesForFlag.RandomItem();
+    }
+
+    private IEnumerator ResolvedFlagsGroupTimer(float timeToShow)
+    {
+        resolvedFlagsGroup.SetActive(true);
+        resolvedFlagsGroup.GetComponent<Animator>().SetBool("shown", true);
+        yield return new WaitForSeconds(timeToShow);
+        resolvedFlagsGroup.GetComponent<Animator>().SetBool("shown", false);
+    }
+
     private IEnumerator TimerResponse()
     {
         timerResponseRunning = true;
@@ -404,7 +547,7 @@ public class GameManager : MonoBehaviour
             if (showCorrectAnswerAfter)
                 responseButtons[currentResponseIndex].GetComponent<Image>().color = colorTrue;
 
-            DecreaseLifes();
+            DecreaseOneLife();
             StartCoroutine(TimerAfterResponse(true));
         }
     }
@@ -423,54 +566,21 @@ public class GameManager : MonoBehaviour
             LoadNewFlag();
         }
     }
-
-    private void ActivateOnly(GameObject[] activeObjects, GameObject[] notActiveObjects)
-    {
-        foreach (var activeObject in activeObjects)
-        {
-            activeObject.SetActive(true);
-        }
-        foreach (var notActiveObject in notActiveObjects)
-        {
-            notActiveObject.SetActive(false);
-        }
-    }
-
-    private void DecreaseLifes()
-    {
-        hearts[hearts.Length - heartsUsed - 1].interactable = false;
-        heartsUsed++;
-
-        if (heartsUsed == hearts.Length)
-        {
-            if (Stats.highscore < Values.resolvedFlags)
-            {
-                FZSave.Int.Set(FZSave.Constants.Highscore, Values.resolvedFlags);
-                highscoreMessage.SetActive(true);
-
-                GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.highscore, "CgkI26Tu-vkJEAIQAQ");
-            }
-            main.GetComponent<Animator>().SetBool("shown", false);
-            gameoverTile.SetActive(true);
-            finalScore.text = Values.resolvedFlags.ToString();
-            Time.timeScale = 0;
-        }
-    }
-
-    private int SelectGameType(Flag flag)
-    {
-        var availabelGameTypesForFlag = new List<int>
-        {
-            (int)GameTypes.Guess
-        };
-        if (flag.hasColors)
-            availabelGameTypesForFlag.Add((int)GameTypes.Color);
-        if (flag.hasSymbol)
-            availabelGameTypesForFlag.Add((int)GameTypes.Symbol);
-
-        return availabelGameTypesForFlag.RandomItem();
-    }
     #endregion
+
+    #region Buttons 
+    public void SplitInHalf()
+    {
+        Values.AddPoints(gameDifficulty == 1 ? -25 : gameDifficulty == 2 ? -35 : -50);
+        buttonSplit.interactable = false;
+
+        SplitFlags();
+    }
+
+    public void GetPointsReward()
+    {
+        AdsManager.Instance.ShowRewardedAd();
+    }
 
     public void BackToMenu()
     {
@@ -478,15 +588,17 @@ public class GameManager : MonoBehaviour
         FZCanvas.Instance.FadeLoadScene(Scenes.Menu, Color.white);
     }
 
-    public void ContinueGame(GameObject tileToHide)
+    public void ContinueGame()
     {
         main.GetComponent<Animator>().SetBool("shown", true);
         Time.timeScale = 1;
-        tileToHide.SetActive(false);
+        pauseTile.SetActive(false);
+        buttonSplit.transform.parent.gameObject.SetActive(true);
     }
 
     public void Replay()
     {
         FZCanvas.Instance.FadeLoadScene(Scenes.Game, Color.white);
     }
+    #endregion
 }

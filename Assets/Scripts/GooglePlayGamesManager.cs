@@ -1,11 +1,9 @@
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GooglePlayGamesManager : MonoBehaviour
 {
-    public Text text;
     public static bool isGooglePlayGames;
     public static GooglePlayGamesManager Instance;
 
@@ -22,7 +20,6 @@ public class GooglePlayGamesManager : MonoBehaviour
 
     internal void ProcessAuthentication(SignInStatus status)
     {
-        text.text = status.ToString();
         isGooglePlayGames = status == SignInStatus.Success;
         Debug.Log("GooglePlayGames " + status);
     }
@@ -31,15 +28,26 @@ public class GooglePlayGamesManager : MonoBehaviour
     {
         if (isGooglePlayGames)
         {
-            PlayGamesPlatform.Instance.ShowLeaderboardUI("CgkI26Tu-vkJEAIQAQ");
+            PlayGamesPlatform.Instance.ShowLeaderboardUI();
         }
     }
 
-    public void AddToLeaderboard(long value, string leaderboardID)
+    public void AddToLeaderboard(long value, int difficulty)
     {
         if (isGooglePlayGames)
         {
-            Social.ReportScore(value, leaderboardID, (bool success) => { });
+            switch (difficulty)
+            {
+                case 1:
+                    Social.ReportScore(value, "CgkI26Tu-vkJEAIQAQ", (bool success) => { });
+                    break;
+                case 2:
+                    Social.ReportScore(value, "CgkI26Tu-vkJEAIQAg", (bool success) => { });
+                    break;
+                case 3:
+                    Social.ReportScore(value, "CgkI26Tu-vkJEAIQAw", (bool success) => { });
+                    break;
+            }
         }
     }
 }

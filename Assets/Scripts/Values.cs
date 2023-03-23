@@ -28,8 +28,15 @@ public class Values : MonoBehaviour
     {
         points += value;
 
+        if (GameManager.Manager != null)
+        {
+            GameManager.Manager.buttonSplit.interactable = points >= (GameManager.Manager.gameDifficulty == 1 ? 25 : GameManager.Manager.gameDifficulty == 2 ? 35 : 50);
+        }
+
         if (Instance.pointsText != null)
+        {
             Instance.pointsText.SlowlyUpdateNumberText(points);
+        }
         FZSave.Int.Set(FZSave.Constants.Points, points);
     }
 
