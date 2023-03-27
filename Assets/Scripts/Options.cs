@@ -7,6 +7,11 @@ public class Options : MonoBehaviour
 
     public static bool isAudioOn = true;
 
+    private void Awake()
+    {
+        Application.targetFrameRate = 60;
+    }
+
     void Start()
     {
         Time.timeScale = 1;

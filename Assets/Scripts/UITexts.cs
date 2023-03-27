@@ -153,7 +153,8 @@ public class UITexts : MonoBehaviour
         { "southAmerica", "South America" },
         { "others", "Others" },
         { "tipPoints", "Earn points when you answer correctly"},
-        { "leaderboards", "Leaderboards" }
+        { "leaderboards", "Leaderboards" },
+        { "finish", "You finished all the flags for this level!" }
     };
 
     public static Dictionary<string, string> ro = new Dictionary<string, string>()
@@ -196,7 +197,8 @@ public class UITexts : MonoBehaviour
         { "southAmerica", "America de Sud" },
         { "others", "Altele" },
         { "tipPoints", "Castigi puncte cand raspunzi corect"},
-        { "leaderboards", "Clasament" }
+        { "leaderboards", "Clasament" },
+        { "finish", "Ai terminat toate steagurile pentru acest nivel!" }
     };
 
     public static Dictionary<string, string> fr = new Dictionary<string, string>()
@@ -238,7 +240,8 @@ public class UITexts : MonoBehaviour
           { "southAmerica", "Amérique du Sud" },
           { "others", "Autres" },
           { "tipPoints", "Gagnez des points lorsque vous répondez correctement"},
-          { "leaderboards", "Classement" }
+          { "leaderboards", "Classement" },
+          { "finish", "Vous avez terminé tous les drapeaux pour ce niveau !" }
     };
 
     public static Dictionary<string, string> es = new Dictionary<string, string>()
@@ -280,7 +283,8 @@ public class UITexts : MonoBehaviour
           { "southAmerica", "Sudamerica" },
           { "others", "Otros" },
           { "tipPoints", "Gana puntos cuando respondas correctamente"},
-          { "leaderboards", "Tabla de clasificación" }
+          { "leaderboards", "Tabla de clasificación" },
+          { "finish", "¡Has terminado con todas las banderas de este nivel!" }
     };
     #endregion
 }

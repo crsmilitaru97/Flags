@@ -528,7 +528,7 @@ MonoBehaviour:
     m_Top: -100
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: -280
+  m_Spacing: -270
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -745,7 +745,7 @@ MonoBehaviour:
     m_Top: -100
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: -280
+  m_Spacing: -270
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1361,7 +1361,7 @@ MonoBehaviour:
     m_Top: -100
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: -280
+  m_Spacing: -270
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1439,7 +1439,7 @@ MonoBehaviour:
     m_Top: -100
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: -280
+  m_Spacing: -270
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -2182,7 +2182,7 @@ MonoBehaviour:
     m_Top: -100
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: -280
+  m_Spacing: -270
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -3572,7 +3572,7 @@ MonoBehaviour:
     m_Top: -100
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: -280
+  m_Spacing: -270
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -3916,7 +3916,7 @@ MonoBehaviour:
     m_Top: -100
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: -280
+  m_Spacing: -270
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0

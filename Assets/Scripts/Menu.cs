@@ -7,17 +7,19 @@ public class Menu : MonoBehaviour
     public static bool firstPlay;
 
     public GameObject moreTile;
+
     public GameObject optionsTile;
     public GameObject statsTile;
     public GameObject priceGroup;
 
     public GameObject pointsTip;
     public GameObject[] locks;
+    public Animator[] panels;
+    public Animator menuPanel;
 
     public Text priceText;
     public FZButton unlockButton;
 
-    public static bool isMoreUP = false;
     public static bool isOptionsShown = false;
 
     int selectedToBuy;
@@ -33,6 +35,7 @@ public class Menu : MonoBehaviour
             ShowTip(pointsTip);
         }
 
+        //Save
         for (int i = 0; i < locks.Length; i++)
         {
             locks[i].SetActive(FZSave.Bool.Get("lock" + i.ToString(), true));
@@ -45,44 +48,33 @@ public class Menu : MonoBehaviour
         {
             if (priceGroup.activeSelf && priceGroup.GetComponent<Animator>().GetBool("shown"))
                 priceGroup.GetComponent<Animator>().SetBool("shown", false);
+        }
 
-            if (moreTile.activeSelf && moreTile.GetComponent<Animator>().GetBool("shown"))
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            foreach (var panel in panels)
             {
-                isMoreUP = false;
-                moreTile.GetComponent<Animator>().SetBool("shown", false);
+                if (panel.GetBool("shown"))
+                {
+                    panel.SetBool("shown", false);
+                    menuPanel.SetBool("shown", true);
+                    break;
+                }
             }
         }
     }
 
     #region Menu Buttons
-    public void More()
+    public void StartGame(int dif)
     {
-        isMoreUP = !isMoreUP;
-        moreTile.GetComponent<Animator>().SetBool("shown", isMoreUP);
-    }
-
-    public void Options()
-    {
-        isOptionsShown = !isOptionsShown;
-        moreTile.GetComponent<Animator>().SetBool("isOptionsShown", isOptionsShown);
+        FZCanvas.Instance.FadeLoadScene(Constants.Scenes.Game, Color.white);
+        FZSave.Int.Set("gameDif", dif);
     }
 
     public void Learn()
     {
         FZCanvas.Instance.FadeLoadScene(Constants.Scenes.Learn, Color.white);
     }
-
-    public void StartGame(int dif)
-    {
-        FZCanvas.Instance.FadeLoadScene(Constants.Scenes.Game, Color.white);
-        FZSave.Int.Set("gameDif", dif + 1);
-    }
-
-    public void OpenURL(string url)
-    {
-        Application.OpenURL(url);
-    }
-    #endregion
 
     public void ShowMenuWithAnim(GameObject tile)
     {
@@ -93,7 +85,21 @@ public class Menu : MonoBehaviour
     {
         tile.GetComponent<Animator>().SetBool("shown", false);
     }
+    #endregion
 
+    #region More Buttons
+    public void ShowMore()
+    {
+        moreTile.GetComponent<Animator>().SetBool("shown", !moreTile.GetComponent<Animator>().GetBool("shown"));
+    }
+
+    public void OpenURL(string url)
+    {
+        Application.OpenURL(url);
+    }
+    #endregion
+
+    #region Unlock Buttons
     public void ShowPrice(int index)
     {
         selectedToBuy = index;
@@ -110,7 +116,9 @@ public class Menu : MonoBehaviour
         FZSave.Bool.Set("lock" + selectedToBuy.ToString(), false);
         priceGroup.GetComponent<Animator>().SetBool("shown", false);
     }
+    #endregion
 
+    #region Tips
     public void ShowTip(GameObject tip)
     {
         tip.SetActive(true);
@@ -123,4 +131,5 @@ public class Menu : MonoBehaviour
         yield return new WaitForSeconds(2);
         tip.GetComponent<Animator>().SetBool("shown", false);
     }
+    #endregion
 }

@@ -10,14 +10,14 @@ public class AdsManager : MonoBehaviour
 
     //App ID ca-app-pub-8089995158636506~6664866802
 
-    public bool isTest;
-
     public static AdsManager Instance;
     public static bool shouldShowAd = false;
 
     private InterstitialAd newFlagAd;
     private BannerView bannerView;
     private RewardedAd getPoints;
+
+    public GameObject rewardButton;
 
     int steps;
     readonly int stepToShow = 4;
@@ -27,23 +27,14 @@ public class AdsManager : MonoBehaviour
     {
         Instance = this;
 
-        MobileAds.Initialize((InitializationStatus initStatus) =>
-        {
-            Debug.Log("Ads: AdMob fully initialized");
-        });
+        MobileAds.Initialize((InitializationStatus initStatus) => { });
+
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
     {
-        if (isTest)
-        {
-            newFlag_interstitial_ID = "ca-app-pub-3940256099942544/1033173712";
-            banner_ID = "ca-app-pub-3940256099942544/6300978111";
-        }
-
         LoadRewardedAd();
-
-        DontDestroyOnLoad(gameObject);
     }
     #endregion
 
@@ -52,8 +43,6 @@ public class AdsManager : MonoBehaviour
     {
         steps++;
         shouldShowAd = steps == stepToShow;
-
-        Debug.Log("Ads: Steps: " + steps);
 
         if (shouldShowAd)
         {
@@ -70,9 +59,6 @@ public class AdsManager : MonoBehaviour
             newFlagAd = null;
         }
 
-        Debug.Log("Ads: Loading the interstitial ad.");
-        Debug.Log("Ads: Is test: " + isTest.ToString());
-
         var adRequest = new AdRequest.Builder()
              .AddKeyword("unity-admob-sample")
              .Build();
@@ -82,14 +68,8 @@ public class AdsManager : MonoBehaviour
           {
               if (error != null || ad == null)
               {
-                  Debug.LogError("Ads: Interstitial ad failed to load an ad " +
-                                 "with error : " + error);
                   return;
               }
-
-              Debug.Log("Ads: Interstitial ad loaded with response : "
-                        + ad.GetResponseInfo());
-
               newFlagAd = ad;
           });
     }
@@ -98,18 +78,8 @@ public class AdsManager : MonoBehaviour
     {
         if (newFlagAd != null && newFlagAd.CanShowAd())
         {
-            Debug.Log("Ads: Showing interstitial ad.");
             newFlagAd.Show();
         }
-        else
-        {
-            Debug.LogWarning("Ads: Interstitial ad is not ready yet.");
-        }
-
-        newFlagAd.OnAdFullScreenContentClosed += () =>
-        {
-            Debug.Log("Ads: Interstitial ad full screen content closed.");
-        };
     }
 
     public void HandleOnAdClosed(object sender, EventArgs args)
@@ -121,15 +91,12 @@ public class AdsManager : MonoBehaviour
     #region Banner
     public void CreateBannerView()
     {
-        Debug.Log("Ads: Creating banner view");
-
         if (bannerView != null)
         {
             DestroyBannerAd();
         }
 
-        AdSize adaptiveSize =
-              AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(AdSize.FullWidth);
+        AdSize adaptiveSize = AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(AdSize.FullWidth);
 
         bannerView = new BannerView(banner_ID, adaptiveSize, AdPosition.Bottom);
     }
@@ -144,20 +111,13 @@ public class AdsManager : MonoBehaviour
             .AddKeyword("unity-admob-sample")
             .Build();
 
-        Debug.Log("Ads: Loading banner ad.");
         bannerView.LoadAd(adRequest);
-
-        bannerView.OnAdFullScreenContentClosed += () =>
-        {
-            Debug.Log("Banner view full screen content closed.");
-        };
     }
 
     public void DestroyBannerAd()
     {
         if (bannerView != null)
         {
-            Debug.Log("Ads: Destroying banner ad.");
             bannerView.Destroy();
             bannerView = null;
         }
@@ -167,13 +127,14 @@ public class AdsManager : MonoBehaviour
     #region Reward
     public void LoadRewardedAd()
     {
+        if (rewardButton != null)
+            rewardButton.SetActive(false);
+
         if (getPoints != null)
         {
             getPoints.Destroy();
             getPoints = null;
         }
-
-        Debug.Log("Ads: Loading the rewarded ad.");
 
         var adRequest = new AdRequest.Builder().Build();
 
@@ -182,52 +143,39 @@ public class AdsManager : MonoBehaviour
             {
                 if (error != null || ad == null)
                 {
-                    Debug.LogWarning("Ads: Rewarded ad failed to load an ad " + "with error : " + error);
                     return;
                 }
 
-                Debug.Log("Ads: Rewarded ad loaded with response : " + ad.GetResponseInfo());
-
+                if (rewardButton != null)
+                    rewardButton.SetActive(true);
                 getPoints = ad;
             });
-
-        RegisterReloadHandler(getPoints);
     }
 
     public void ShowRewardedAd()
     {
-        const string rewardMsg = "Ads: Rewarded ad rewarded the user. Type: {0}, amount: {1}.";
-
         if (getPoints != null && getPoints.CanShowAd())
         {
             getPoints.Show((Reward reward) =>
             {
-                Debug.Log(string.Format(rewardMsg, reward.Type, reward.Amount));
-                GetPointsReward();
+                RegisterReloadHandler(getPoints);
             });
         }
     }
 
     private void RegisterReloadHandler(RewardedAd ad)
     {
+        Values.AddPoints(25);
+
         ad.OnAdFullScreenContentClosed += () =>
         {
-            Debug.Log("Ads: Rewarded Ad full screen content closed.");
-
             LoadRewardedAd();
         };
 
         ad.OnAdFullScreenContentFailed += (AdError error) =>
         {
-            Debug.LogWarning("Ads: Rewarded ad failed to open full screen content " + "with error : " + error);
-
             LoadRewardedAd();
         };
-    }
-
-    void GetPointsReward()
-    {
-        Values.AddPoints(30);
     }
     #endregion
 }

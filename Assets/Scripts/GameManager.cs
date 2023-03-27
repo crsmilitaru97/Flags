@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public GameObject main;
     public GameObject resolvedFlagsGroup;
     public FZButton buttonSplit;
+    public GameObject finishedAllFlags;
 
     public GameObject up_flagGroup;
     public GameObject up_uncoloredFlagGroup;
@@ -32,6 +33,7 @@ public class GameManager : MonoBehaviour
     public GameObject highscoreMessage;
     public ParticleSystem responseParticles;
     public FZProgressBar progressBar;
+    public RectTransform symbolsListContainer;
 
     //UI
     public Color[] UIColors;
@@ -54,14 +56,15 @@ public class GameManager : MonoBehaviour
     public static int currentResponseIndex;
 
 
-    List<Flag> UsedFlags = new List<Flag>();
+    private List<Flag> UsedFlags = new List<Flag>();
+    private List<Flag> CurrentFlags = new List<Flag>();
+
     enum GameTypes { Guess, Color, Symbol };
     public static int selectedSymbolIndex;
     public static int mustGameType = -1;
     int completedParts = 0;
     IEnumerator timer;
 
-    public List<Flag> CurrentListOfFlags = new List<Flag>();
 
     int gameType;
     public int gameDifficulty;
@@ -88,7 +91,7 @@ public class GameManager : MonoBehaviour
         {
             if (flag.difLevel == gameDifficulty)
             {
-                CurrentListOfFlags.Add(flag);
+                CurrentFlags.Add(flag);
             }
         }
 
@@ -192,7 +195,7 @@ public class GameManager : MonoBehaviour
 
         if (isCorrectAnswer)
         {
-            StartCoroutine(ResolvedFlagsGroupTimer(2));
+            StartCoroutine(ResolvedFlagsGroupTimer(1));
             Values.AddResolvedFlag(1);
         }
         else
@@ -320,8 +323,17 @@ public class GameManager : MonoBehaviour
         upTile.ReEnable();
         downTile.ReEnable();
         timeTile.ReEnable();
-
-        currentFlag = CurrentListOfFlags.RandomUniqueItem(UsedFlags);
+        if (CurrentFlags.Count != UsedFlags.Count)
+        {
+            currentFlag = CurrentFlags.RandomUniqueItem(UsedFlags);
+        }
+        else
+        {
+            DecreaseOneLife();
+            DecreaseOneLife();
+            DecreaseOneLife();
+            finishedAllFlags.SetActive(true);
+        }
 
         SetGameMode();
         ChangeColors();
@@ -350,7 +362,7 @@ public class GameManager : MonoBehaviour
                 foreach (var button in responseButtons)
                 {
                     button.interactable = true;
-                    button.buttonText.GetComponent<FZText>().SlowlyWriteText(CurrentListOfFlags.RandomUniqueItem(usedFlagsForResponses).name);
+                    button.buttonText.GetComponent<FZText>().SlowlyWriteText(CurrentFlags.RandomUniqueItem(usedFlagsForResponses).name);
 
                 }
                 responseButtons.RandomItem().buttonText.GetComponent<FZText>().SlowlyWriteText(currentFlag.name);
@@ -401,6 +413,7 @@ public class GameManager : MonoBehaviour
                 countryFlag.sprite = currentFlag.symbol.noSymbolSprite;
 
                 selectedSymbolIndex = 1;
+                symbolsListContainer.anchoredPosition = new Vector2(-445, 0);
 
                 foreach (var button in symbolButtons)
                 {

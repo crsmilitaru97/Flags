@@ -8,11 +8,6 @@ public class LearnItem : MonoBehaviour
     public Text abbrevText;
     public Image flagImage;
 
-    void Start()
-    {
-
-    }
-
     public void Search()
     {
         Application.OpenURL("https://en.wikipedia.org/wiki/" + nameText.text);
