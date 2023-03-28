@@ -17,7 +17,10 @@ public class AdsManager : MonoBehaviour
     private BannerView bannerView;
     private RewardedAd getPoints;
 
-    public GameObject rewardButton;
+    [HideInInspector]
+    public FZButton rewardButton;
+
+    public static bool isAdMob;
 
     int steps;
     readonly int stepToShow = 4;
@@ -25,11 +28,14 @@ public class AdsManager : MonoBehaviour
     #region Basic Events
     void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
 
-        MobileAds.Initialize((InitializationStatus initStatus) => { });
+            MobileAds.Initialize((InitializationStatus initStatus) => { });
 
-        DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject);
+        }
     }
 
     void Start()
@@ -128,7 +134,7 @@ public class AdsManager : MonoBehaviour
     public void LoadRewardedAd()
     {
         if (rewardButton != null)
-            rewardButton.SetActive(false);
+            rewardButton.gameObject.SetActive(false);
 
         if (getPoints != null)
         {
@@ -147,7 +153,7 @@ public class AdsManager : MonoBehaviour
                 }
 
                 if (rewardButton != null)
-                    rewardButton.SetActive(true);
+                    rewardButton.gameObject.SetActive(true);
                 getPoints = ad;
             });
     }

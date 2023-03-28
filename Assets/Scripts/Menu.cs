@@ -19,6 +19,7 @@ public class Menu : MonoBehaviour
 
     public Text priceText;
     public FZButton unlockButton;
+    public FZButton rewardButton;
 
     public static bool isOptionsShown = false;
 
@@ -27,6 +28,8 @@ public class Menu : MonoBehaviour
 
     void Start()
     {
+        AdsManager.Instance.rewardButton = rewardButton;
+
         firstPlay = FZSave.Bool.Get(FZSave.Constants.IsFirstPlay, true);
         FZSave.Bool.Set(FZSave.Constants.IsFirstPlay, false);
 

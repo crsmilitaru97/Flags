@@ -7,6 +7,15 @@ using static Constants;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Menus")]
+    public GameObject gameoverTile;
+    public GameObject pauseTile;
+
+    [Header("Top")]
+    public Button[] hearts;
+    public GameObject resolvedFlagsGroup;
+
+    [Header("Other")]
     public FZText titleGameType;
     public FZText countryName;
     public Image countryFlag;
@@ -14,7 +23,6 @@ public class GameManager : MonoBehaviour
     public GameObject downTile;
     public GameObject timeTile;
     public GameObject main;
-    public GameObject resolvedFlagsGroup;
     public FZButton buttonSplit;
     public GameObject finishedAllFlags;
 
@@ -26,14 +34,13 @@ public class GameManager : MonoBehaviour
     public FZButton[] colorButtons;
     public FZButton[] symbolButtons;
 
-    public Button[] hearts;
-    public GameObject gameoverTile;
-    public GameObject pauseTile;
+
     public Text finalScore;
     public GameObject highscoreMessage;
     public ParticleSystem responseParticles;
     public FZProgressBar progressBar;
     public RectTransform symbolsListContainer;
+    public FZButton rewardButton;
 
     //UI
     public Color[] UIColors;
@@ -79,6 +86,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        AdsManager.Instance.rewardButton = rewardButton;
+
         AdsManager.Instance.LoadBannerAd();
 
         heartsUsed = 0;
@@ -102,9 +111,8 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            main.GetComponent<Animator>().SetBool("shown", false);
+            ShowMenu(pauseTile);
             Time.timeScale = 0;
-            pauseTile.SetActive(true);
             buttonSplit.transform.parent.gameObject.SetActive(false);
         }
     }
@@ -378,6 +386,11 @@ public class GameManager : MonoBehaviour
 
                 completedParts = 0;
 
+                foreach (var image in uncoloredParts)
+                {
+                    image.gameObject.SetActive(false);
+                }
+
                 //Get colors
                 List<Color> colors = new List<Color>();
                 foreach (var cPart in currentFlag.colors.colorParts)
@@ -401,10 +414,6 @@ public class GameManager : MonoBehaviour
                     colorButtons[i].buttonImage.color = colors[i];
                 }
 
-                foreach (var image in uncoloredParts)
-                {
-                    image.gameObject.SetActive(false);
-                }
                 break;
 
             case (int)GameTypes.Symbol: // "missingPart"
@@ -420,14 +429,17 @@ public class GameManager : MonoBehaviour
                     button.interactable = true;
                 }
 
-                List<Sprite> symbols = new List<Sprite>
+                //Get symbols
+                List<Sprite> symbols = new List<Sprite>();
+                FlagsManager.AllSymbols.Shuffle();
+                for (int i = 0; i < 3; i++)
                 {
-                    FlagsManager.AllSymbols.RandomItem(),
-                    FlagsManager.AllSymbols.RandomItem(),
-                    FlagsManager.AllSymbols.RandomItem(),
-                };
-                symbols[Random.Range(0, 2)] = currentFlag.symbol.symbolSprite;
+                    symbols.Add(FlagsManager.AllSymbols[i]);
+                }
+                if (!symbols.Contains(currentFlag.symbol.symbolSprite))
+                    symbols[Random.Range(0, 2)] = currentFlag.symbol.symbolSprite;
 
+                //Apply symbols
                 for (int i = 0; i < symbolButtons.Length; i++)
                 {
                     symbolButtons[i].buttonImage.sprite = symbols[i];
@@ -507,12 +519,23 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
-            main.GetComponent<Animator>().SetBool("shown", false);
-            gameoverTile.SetActive(true);
+            ShowMenu(gameoverTile);
             buttonSplit.transform.parent.gameObject.SetActive(false);
             finalScore.text = Values.resolvedFlags.ToString();
             Time.timeScale = 0;
         }
+    }
+
+    public void ShowMenu(GameObject menu)
+    {
+        main.GetComponent<Animator>().SetBool("shown", false);
+        menu.GetComponent<Animator>().SetBool("shown", true);
+    }
+
+    public void HideMenu(GameObject menu)
+    {
+        menu.GetComponent<Animator>().SetBool("shown", false);
+        main.GetComponent<Animator>().SetBool("shown", true);
     }
 
     private int SelectGameType(Flag flag)
@@ -605,7 +628,7 @@ public class GameManager : MonoBehaviour
     {
         main.GetComponent<Animator>().SetBool("shown", true);
         Time.timeScale = 1;
-        pauseTile.SetActive(false);
+        HideMenu(pauseTile);
         buttonSplit.transform.parent.gameObject.SetActive(true);
     }
 

@@ -131,7 +131,7 @@ public class UITexts : MonoBehaviour
         { "language", "Language" },
         { "gameplay", "Game" },
         { "resetGame", "Reset game data" },
-        { "highscore", "Highscore" },
+        { "highscores", "Highscores" },
         { "symbols", "Symbols" },
         { "names", "Names" },
         { "colors", "Colors" },
@@ -154,7 +154,8 @@ public class UITexts : MonoBehaviour
         { "others", "Others" },
         { "tipPoints", "Earn points when you answer correctly"},
         { "leaderboards", "Leaderboards" },
-        { "finish", "You finished all the flags for this level!" }
+        { "finish", "You finished all the flags for this level!" },
+        { "correctAnswers", "Correct answers" }
     };
 
     public static Dictionary<string, string> ro = new Dictionary<string, string>()
@@ -175,7 +176,7 @@ public class UITexts : MonoBehaviour
         { "language", "Limba" },
         { "gameplay", "Joc" },
         { "resetGame", "Reseteaza jocul" },
-        { "highscore", "Cel mai bun scor" },
+        { "highscores", "Cele mai bune scoruri" },
         { "symbols", "Simboluri" },
         { "names", "Nume" },
         { "colors", "Culori" },
@@ -197,8 +198,9 @@ public class UITexts : MonoBehaviour
         { "southAmerica", "America de Sud" },
         { "others", "Altele" },
         { "tipPoints", "Castigi puncte cand raspunzi corect"},
-        { "leaderboards", "Clasament" },
-        { "finish", "Ai terminat toate steagurile pentru acest nivel!" }
+        { "leaderboards", "Clasamente" },
+        { "finish", "Ai terminat toate steagurile pentru acest nivel!" },
+        { "correctAnswers", "Raspunsuri corecte" }
     };
 
     public static Dictionary<string, string> fr = new Dictionary<string, string>()
@@ -218,7 +220,7 @@ public class UITexts : MonoBehaviour
           { "language", "Langue" },
           { "gameplay", "Jeu" },
           { "resetGame", "Réinitialiser les données du jeu" },
-          { "highscore", "Score élevé" },
+          { "highscores", "Scores élevés" },
           { "symbols", "Symboles" },
           { "names", "Des noms" },
           { "colors", "Couleurs" },
@@ -240,8 +242,9 @@ public class UITexts : MonoBehaviour
           { "southAmerica", "Amérique du Sud" },
           { "others", "Autres" },
           { "tipPoints", "Gagnez des points lorsque vous répondez correctement"},
-          { "leaderboards", "Classement" },
-          { "finish", "Vous avez terminé tous les drapeaux pour ce niveau !" }
+          { "leaderboards", "Classements" },
+          { "finish", "Vous avez terminé tous les drapeaux pour ce niveau !" },
+          { "correctAnswers", "Réponses correctes" }
     };
 
     public static Dictionary<string, string> es = new Dictionary<string, string>()
@@ -261,7 +264,7 @@ public class UITexts : MonoBehaviour
           { "language", "Idioma" },
           { "gameplay", "Juego" },
           { "resetGame", "Restablecer datos del juego" },
-          { "highscore", "Puntuación más alta" },
+          { "highscores", "Puntuaciones altas" },
           { "symbols", "Simbolos" },
           { "names", "Nombres" },
           { "colors", "Colores" },
@@ -283,8 +286,9 @@ public class UITexts : MonoBehaviour
           { "southAmerica", "Sudamerica" },
           { "others", "Otros" },
           { "tipPoints", "Gana puntos cuando respondas correctamente"},
-          { "leaderboards", "Tabla de clasificación" },
-          { "finish", "¡Has terminado con todas las banderas de este nivel!" }
+          { "leaderboards", "Tablas de clasificación" },
+          { "finish", "¡Has terminado con todas las banderas de este nivel!" },
+          { "correctAnswers", "Respuestas correctas" }
     };
     #endregion
 }
