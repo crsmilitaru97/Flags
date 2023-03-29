@@ -40,7 +40,6 @@ public class GameManager : MonoBehaviour
     public ParticleSystem responseParticles;
     public FZProgressBar progressBar;
     public RectTransform symbolsListContainer;
-    public FZButton rewardButton;
 
     //UI
     public Color[] UIColors;
@@ -86,8 +85,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        AdsManager.Instance.rewardButton = rewardButton;
-
         AdsManager.Instance.LoadBannerAd();
 
         heartsUsed = 0;

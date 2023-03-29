@@ -1,6 +1,8 @@
 using GoogleMobileAds.Api;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AdsManager : MonoBehaviour
 {
@@ -17,24 +19,35 @@ public class AdsManager : MonoBehaviour
     private BannerView bannerView;
     private RewardedAd getPoints;
 
-    [HideInInspector]
-    public FZButton rewardButton;
-
     public static bool isAdMob;
 
     int steps;
     readonly int stepToShow = 4;
 
+    List<GameObject> rewardButtons = new List<GameObject>();
+
     #region Basic Events
     void Awake()
     {
-        if (Instance == null)
+        Instance = this;
+
+        MobileAds.Initialize((InitializationStatus initStatus) => { });
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        DontDestroyOnLoad(gameObject);
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        rewardButtons.Clear();
+        foreach (var item in GameObject.FindGameObjectsWithTag("Reward"))
         {
-            Instance = this;
-
-            MobileAds.Initialize((InitializationStatus initStatus) => { });
-
-            DontDestroyOnLoad(gameObject);
+            rewardButtons.Add(item);
+            if (getPoints != null)
+            {
+                item.SetActive(getPoints.CanShowAd());
+            }
         }
     }
 
@@ -133,13 +146,15 @@ public class AdsManager : MonoBehaviour
     #region Reward
     public void LoadRewardedAd()
     {
-        if (rewardButton != null)
-            rewardButton.gameObject.SetActive(false);
-
         if (getPoints != null)
         {
             getPoints.Destroy();
             getPoints = null;
+        }
+
+        foreach (var item in rewardButtons)
+        {
+            item.SetActive(false);
         }
 
         var adRequest = new AdRequest.Builder().Build();
@@ -152,8 +167,10 @@ public class AdsManager : MonoBehaviour
                     return;
                 }
 
-                if (rewardButton != null)
-                    rewardButton.gameObject.SetActive(true);
+                foreach (var item in rewardButtons)
+                {
+                    item.SetActive(true);
+                }
                 getPoints = ad;
             });
     }

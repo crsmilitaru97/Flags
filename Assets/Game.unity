@@ -6301,7 +6301,7 @@ GameObject:
   - component: {fileID: 1065540584}
   m_Layer: 5
   m_Name: Get Points Tile
-  m_TagString: Untagged
+  m_TagString: Reward
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14449,7 +14449,6 @@ MonoBehaviour:
   responseParticles: {fileID: 1153589004}
   progressBar: {fileID: 738492677}
   symbolsListContainer: {fileID: 16531069}
-  rewardButton: {fileID: 1065540585}
   UIColors:
   - {r: 0.7830189, g: 0.42475083, b: 0.6118463, a: 1}
   - {r: 0.4666667, g: 0.6509804, b: 0.8196079, a: 1}
