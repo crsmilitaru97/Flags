@@ -490,17 +490,13 @@ public class GameManager : MonoBehaviour
                 case 1:
                     if (Stats.easyHighscore < Values.resolvedFlags)
                     {
-                        Stats.easyHighscore = Values.resolvedFlags;
-                        FZSave.Int.Set("easyHighscore", Stats.easyHighscore);
                         highscoreMessage.SetActive(true);
-                        GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.easyHighscore, gameDifficulty);
+                        GooglePlayGamesManager.Instance.AddToLeaderboard(Values.resolvedFlags, gameDifficulty);
                     }
                     break;
                 case 2:
                     if (Stats.mediumHighscore < Values.resolvedFlags)
                     {
-                        Stats.mediumHighscore = Values.resolvedFlags;
-                        FZSave.Int.Set("mediumHighscore", Stats.mediumHighscore);
                         highscoreMessage.SetActive(true);
                         GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.mediumHighscore, gameDifficulty);
                     }
@@ -508,8 +504,6 @@ public class GameManager : MonoBehaviour
                 case 3:
                     if (Stats.hardHighscore < Values.resolvedFlags)
                     {
-                        Stats.hardHighscore = Values.resolvedFlags;
-                        FZSave.Int.Set("hardHighscore", Stats.hardHighscore);
                         highscoreMessage.SetActive(true);
                         GooglePlayGamesManager.Instance.AddToLeaderboard(Stats.hardHighscore, gameDifficulty);
                     }

@@ -10709,7 +10709,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc0e4278f0fbf13488f88d25a97194e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rewardButton: {fileID: 533071475}
 --- !u!4 &1644431645
 Transform:
   m_ObjectHideFlags: 0
@@ -14468,6 +14467,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3081a233c8a4ac74fb4cecf1091ed57d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  highscoresGroup: {fileID: 804507843}
 --- !u!1 &2015416046
 GameObject:
   m_ObjectHideFlags: 0

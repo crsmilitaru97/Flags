@@ -18,7 +18,5 @@ public class Stats : MonoBehaviour
         symbols = FZSave.Int.GetToText("symbols", symbolsText);
         names = FZSave.Int.GetToText("names", namesText);
         colors = FZSave.Int.GetToText("colors", colorsText);
-
-        highscoresGroup.SetActive(!GooglePlayGamesManager.isGooglePlayGames);
     }
 }
