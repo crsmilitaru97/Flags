@@ -19,8 +19,6 @@ public class AdsManager : MonoBehaviour
     private BannerView bannerView;
     private RewardedAd getPoints;
 
-    public static bool isAdMob;
-
     int steps;
     readonly int stepToShow = 4;
 
